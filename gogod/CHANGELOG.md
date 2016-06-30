@@ -1,6 +1,6 @@
 # Changelog
 
-### Version 2.0.0(Beta) - 2015-05-08 - Marutpong Chailangka
+### Version 2.0.0(Beta) - 2016-07-01 - Marutpong Chailangka
 * Updated html rendering from PHP to python (Tornado) except filemanager
 * Updated serving PHP by itself standalone (port 8889) instead of using Apache
 * Added REST API
