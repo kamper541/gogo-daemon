@@ -1,0 +1,197 @@
+{#
+
+/*--------------------------------------------------------------------
+Description:	List logged data and select the data to show or delete it.
+Authors:		Marutpong Chailangka
+Created:		2015-04-15
+Updateed:       2015-10-10
+				2015-05-05
+---------------------------------------------------------------------*/
+
+#}
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<title>Data Logging</title>
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<meta name="author" content="Marutpong Chailangka">
+	<link href="../bootstrap-material-design/dist/css/bootstrap.min.css" rel="stylesheet">
+	<link href="../bootstrap-material-design/dist/css/material-fullpalette.min.css" rel="stylesheet">
+	<link rel="stylesheet" href="bootstrap-chosen/bootstrap.css" />
+
+</head>
+<body>
+{% module Template(config_data['header_path'], config_data=config_data, arguments=arguments) %}
+	<div class="container">
+		<div class="panel panel-primary">
+			<div class="panel-body">
+
+				<div class="row">
+					<div class="col-lg-6 col-md-6 col-sm-6">
+						<h1 class="text-info visible-lg">Data Logging</h1>
+						<h3 class="text-info hidden-lg">Data Logging</h3>
+					</div>
+				</div>
+				<form class="bs-component" action="show.html" method="GET" onsubmit="on_submit(event)" id="select_data_form">
+					<div class="row">
+						<div class="col-lg-6 col-md-6 col-lg-offset-3 col-md-offset-3">
+
+							<!--<div class="form-group">
+							<label class="control-label">select log</label>
+							<div class="form-control-wrapper"><input class="form-control empty" id="name" name="name" type="text" style="cursor: auto;"><span class="material-input"></span></div>
+							</div> -->
+							<div class="row block">
+
+								<div class="form-group">
+									<div class="col-lg-12">
+
+										<select data-placeholder="choose data" multiple class="chosen-select" tabindex="8" name="name" id="chooser">
+											<option value=""></option>
+										</select>
+									</div>
+								</div>
+							</div>
+							{#
+							<div class="row block">
+								<div class="form-group">
+									<div class="col-lg-6 col-md-6">
+										<div class="checkbox">
+											<label>
+												<input type="checkbox" name="average"><span class="checkbox-material"><span class="check"></span></span> Average sensor values by
+											</label>
+										</div>
+									</div>
+									<div class="col-lg-6 col-md-6">
+										<select data-placeholder="choose log" class="form-control " name="by" style="height:36px;">
+											<option value="10minute">10minute</option>
+											<option value="hour">hour</option>
+											<option value="day">day</option>
+											<option value="month">month</option>
+										</select>
+									</div>
+								</div>
+							</div>
+							#}
+							<div class="row" style="display:none;">
+								<div class="form-group">
+									<div class="col-lg-6">
+										<div class="checkbox">
+											<label>
+												<input type="checkbox" name="range"><span class="checkbox-material"><span class="check"></span></span> Range
+											</label>
+										</div>
+									</div>
+									<div class="col-lg-6">
+										<select data-placeholder="choose log" class="form-control " name="date_range" style="height:36px;">
+											<option value="10minute">10minute</option>
+											<option value="hour">hour</option>
+											<option value="day">day</option>
+											<option value="month">month</option>
+										</select>
+									</div>
+								</div>
+							</div>
+						<!--                        
+						<div class="form-group">
+						<div class="col-lg-10 col-lg-offset-4">
+						<button type="submit" class="btn btn-primary">Submit</button>
+						</div>
+						</div>	-->
+						</div>
+						<div class="col-lg-1 col-md-1 col-sm-12 text-center">                                
+						</div>
+						</div>
+						<div class="row text-center">
+							<div class="col-lg-1 col-md-1 col-lg-offset-5 col-md-offset-5 block">
+								<button class="btn btn-fab btn-raised btn-sm btn-success" type="submit" id="btn_submit"><i class="mdi-navigation-arrow-forward"></i></button>
+								<span class="text-muted">Sumbit</span>
+							</div>
+							<div class="col-lg-1 col-md-1 block">
+								<button class="btn btn-fab btn-raised btn-sm btn-danger" type="button" id="btn_delete" onclick="on_submit(this);"><i class="mdi-action-delete"></i></button>
+								<span class="text-muted">Delete</span>
+							</div>
+						</div>
+				</form>
+			</div>
+		</div>
+	</div>
+
+	<script src="../bootstrap-material-design/dist/jquery-1.11.min.js"></script>
+	<script src="../bootstrap-material-design/dist/js/bootstrap.min.js"></script>
+	<script src="../bootstrap-material-design/dist/js/material.min.js"></script>
+
+	<!-- new -->
+	<script src="bootstrap-chosen/chosen.jquery.js"></script>
+	<script>
+		$(function() {
+			$.getJSON('/api/datalog/list',    function (data) {
+
+				$.each(data.data, function (index, record) {
+					$('#chooser').append('<option>'+record+'</option>');
+				});
+				$('.chosen-select').chosen();
+				$('.chosen-select-deselect').chosen({ allow_single_deselect: true });
+			});
+
+
+		});
+		function on_submit(event){
+			
+			if (!event.id){
+				event.preventDefault();
+			};
+			//var data = $(event.target).serialize();
+			var data = $('#select_data_form').serialize();
+			var url = $(event.target).attr('action');
+			var datas = data.split('&');
+			var list = [];
+			var is_avg = $('[name=average]').prop( "checked" );
+			var by = $('[name=by]').val();
+			var is_range = $('[name=range]').prop( "checked" );
+			var date_range = $('[name=date_range]').val();
+			
+			$.each(datas, function (index, record) {
+				var input = record.split('=');
+				if (input[0]=='name'){
+					list.push(input[1]);
+				}
+			});
+
+			if (list.length==0) {
+				alert("No data selected !!");
+				return false;
+			} else if (event.id=='btn_delete') {
+				logger_delete(list);
+			} else {
+				var redirect = url+"?name="+list.join();//+"&average="+is_avg+"&by="+by+"&range="+is_range+"&date_range="+date_range;
+				console.log(redirect);
+				// similar behavior as an HTTP redirect
+				// window.location.replace(redirect);
+
+				// similar behavior as clicking on a link
+				window.location.href = redirect;
+			}
+		}
+
+		function logger_delete(list){
+			if(confirm("Are you sure to delete "+list+" ?")){
+				console.log(list);
+				 $('#btn_delete').prop('disabled', true);
+				$.get( "/api/datalog/delete/"+list, function(data) {
+				  console.log( data );
+				  location.reload();
+				  history.go(0);
+				  window.location.href=window.location.href;
+				})
+				  .fail(function() {
+				    alert( "there was error while handling!" );
+				  })
+				  .always(function(){
+				  	$('#btn_delete').prop('disabled', false);
+				  });
+			}
+		}
+	</script>
+</body>
+</html>

@@ -1,0 +1,40 @@
+<html>
+	
+	<head>
+		<title>Pi Display</title>
+		<!--<link rel="stylesheet" href="fullscreen.css">
+		-->
+		<script type="text/javascript"> 
+	
+		
+		function sendFeedback() {
+		  e = window.event;
+		  //alert('x = ' + e.pageX + " y = " + e.pageY);
+		  
+		  var bgpic=document.getElementById("bgimage");	
+		  if (ws.readyState == 1) {
+			//ws.send(e.pageX+","+e.pageY)
+			  ws.send(bgpic.src);
+		  }
+		}
+		
+
+		
+		var ws = new WebSocket("ws://localhost:8888/ws");
+				
+        // when data is comming from the server, this metod is called
+        ws.onmessage = function (evt) {
+            //inc.innerHTML += evt.data + '<br/>';
+            var bgpic=document.getElementById("bgimage");	
+            bgpic.src=evt.data;
+        };
+
+		</script>
+
+
+		
+	</head>
+<body>
+  <img alt="full screen background image" src="pet_idle.png" onclick="sendFeedback()" id="bgimage" /> 
+</body>
+</html>

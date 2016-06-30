@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no, minimal-ui">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="description" content="Display modules of Gogo Board from config.json">
+  <meta name="author" content="Marutpong Chailangka">
+  <title>Gogo Home Screen</title>
+
+  <!-- Bootstrap core CSS -->
+  <link href="/www/bootstrap-material-design/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="/www/bootstrap-material-design/dist/css/material-fullpalette.min.css" rel="stylesheet">
+
+<!--[if lt IE 9]>
+<script src="https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
+<script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+<![endif]-->
+
+<style type="text/css">
+.vertical-center {
+  min-height: 100%;  /* Fallback for browsers do NOT support vh unit */
+  min-height: 100vh; /* These two lines are counted as one :-)       */
+
+display: flex;
+align-items: center;
+}
+body {
+  background: #e4e4e4;
+}
+.top-buffer { margin-top:12px; }
+
+.div_hover:hover { background-color: #EEE; }
+.double {
+  -ms-transform:scale(2.0,2.0); /* IE 9 */
+  -moz-transform:scale(2.0,2.0); /* Firefox */
+  -webkit-transform:scale(2.0,2.0); /* Safari and Chrome */
+  -o-transform:scale(2.0,2.0); /* Opera */
+}
+a:hover{
+  text-decoration: none;
+}
+.version_show{
+  width: 300px;
+  height: 30px;
+  position: absolute;
+  top: 1;
+  left: 1;
+  z-index: 10;
+}
+</style>
+</head>
+<body>
+<!-- Marketing messaging and featurettes
+  ================================================== -->
+  <!-- Wrap the rest of the page in another container to center all the content. -->
+  <div class="navbar navbar-info navbar-fixed-top shadow-z-1 hidden-lg hidden-md">
+    <div class="navbar-header">
+      <a class="navbar-brand" href="javascript:void(0)"><i class="mdi-action-home"></i> GoGo Home Screen</a>
+    </div>
+  </div>
+  <div class="hidden-md hidden-lg" style="height:55px;"></div>
+  <div class="version_show">
+    <p class="text-muted" style="padding:5px;">version {{ config_data['gogod_version'] }}, Updated {{ config_data['gogod_updated'] }}</p>
+  </div>
+  <div class="vertical-center">
+    <div class="container">
+      <div class="hidden-md hidden-lg" style="height:20px;"></div>
+      <!-- The columns of text below the carousel -->
+      <div class="row">
+        {% for entry in config_data['element'] %}
+          <div class="col-lg-3 col-sm-6 text-center div_hover"><br>
+            <a href="{{ config_data['hostname'] }}{{ entry['url'] }}" target="_blank">
+              <img class="img-circle" src="/www/hub/icon/{{ entry['image'] }}" alt="{{ entry['label'] }}"
+              width="{{ config_data['image_size'] }}" height="{{ config_data['image_size'] }}">
+              <h3 style="color:{{ entry['color'] }};">{{ entry['label'] }}</h3>
+            </a>
+          </div><!-- /.col-lg-4 -->
+        {% end %}
+</div><!-- /.row -->
+</div><!-- /.container -->
+</div>
+<div class="" style="position: fixed; bottom: 12px; right: 25px;  z-index: 20;" >
+  <div class="row">
+    <a href="/www/setting.html" class="btn btn-default btn-fab btn-raised mdi-action-settings" alt="Setting" title="Setting"
+    data-toggle="tooltip" data-placement="left" title="" data-original-title="Setting"></a>
+  </div>
+  <div class="row top-buffer">
+    <a href="javascript:void(0)" class="btn btn-default btn-fab btn-raised mdi-communication-stay-current-portrait" 
+    data-toggle="modal" data-target="#dialog-qrcode" title="QR Code" 
+    ata-toggle="tooltip" data-placement="left" title="" data-original-title="QR Code"
+    ></a></div>
+
+  </div>
+
+
+  <div id="dialog-qrcode" class="modal fade" tabindex="-1">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+          <h4 class="modal-title">QR Code</h4>
+        </div>
+        <div class="modal-body text-center">
+          <div id="qrcode"></div>
+          <p>{{ config_data['hostname_port'] }}</p>
+        </div>
+        <div class="modal-footer">
+          <button class="btn btn-primary" data-dismiss="modal">Close</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+<!-- Bootstrap core JavaScript
+  ================================================== -->
+  <!-- Placed at the end of the document so the pages load faster -->
+  <script src="/www/bootstrap-material-design/dist/jquery-1.11.min.js"></script>
+  <script src="/www/bootstrap-material-design/dist/js/bootstrap.min.js"></script>
+  <!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->
+  <script src="/www/bootstrap-material-design/dist/js/ie10-viewport-bug-workaround.js"></script>
+  <script type="text/javascript" src="/www/hub/jquery.qrcode.js"></script>
+  <script type="text/javascript" src="/www/hub/qrcode.js"></script>
+
+  <script type="text/javascript">
+    $('#qrcode').qrcode("{{ config_data['hostname_port'] }}");
+  </script>
+</body>
+</html>

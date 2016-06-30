@@ -1,0 +1,4 @@
+RewriteEngine on
+RewriteRule ^([a-zA-Z0-9_-]+)$ $1.php
+RewriteRule ^(.*).html$ index.php?page=$1
+RewriteRule ^reset/([a-zA-Z0-9_-]+)$ reset_password.php?code=$1

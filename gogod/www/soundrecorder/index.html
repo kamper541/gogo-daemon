@@ -1,0 +1,170 @@
+{#
+
+/*--------------------------------------------------------------------
+Description:	Record the sound and upload it to raspberry pi.
+Authors:		Marutpong Chailangka
+Created:		2015-04-15
+Updateed:   2015-10-10
+            2016-05-05
+---------------------------------------------------------------------*/
+
+#}
+
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Sound Recording</title>
+  <link href="../bootstrap-material-design/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="../bootstrap-material-design/dist/css/material-fullpalette.min.css" rel="stylesheet">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="author" content="Marutpong Chailangka">
+  <style type='text/css'>
+    ul {
+     list-style: none;
+   }
+   #recordingslist audio {
+     display: block;
+     margin-bottom: 10px;
+   }
+ </style>
+</head>
+<body>
+{% module Template(config_data['header_path'], config_data=config_data, arguments=arguments) %}
+  <div class="container">
+    <div class="panel panel-primary">
+            <div class="panel-body">
+
+    <div class="row">
+      <div class="col-lg-6 col-md-6 col-sm-6">
+        <h1 class="text-info visible-lg">Sound Recording</h1>
+        <h3 class="text-info hidden-lg">Sound Recording</h3>
+      </div>
+    </div>
+  </div>
+  <div class="row text-center">
+    <div class="col-xs-6 col-sm-2 col-lg-1 col-sm-offset-4 col-lg-offset-5 block">
+
+      <button id="button_start" href="javascript:void(0)" onclick="startRecording(this);" class="btn btn-danger  btn-fab btn-raised mdi-av-mic"></button>
+      <span class="text-muted">Start</span>
+
+    </div>
+    <div class="col-xs-6 col-sm-2 col-lg-1 block">
+      <button id="button_stop" href="javascript:void(0)" onclick="stopRecording(this);" disabled class="btn btn-fab btn-info btn-raised mdi-av-stop"></button>
+      <span class="text-muted">Stop</span>
+    </div>
+  </div>
+  <div class="row block">
+    <div class="col-md-8 col-lg-4 col-md-offset-1 col-lg-offset-4 text-center">
+      <ul id="recordingslist"></ul>
+    </div>
+  </div>
+  <div class="row block">
+    <div class="col-lg-6 col-lg-offset-3 text-center">
+      <pre id="log"></pre>
+    </div>
+  </div>    
+</div>
+</div>
+</div>
+<script>
+  function __log(e, data) {
+    log.innerHTML = "\n" + e + " " + (data || '');
+  }
+
+  var audio_context;
+  var recorder;
+
+  function startUserMedia(stream) {
+    var input = audio_context.createMediaStreamSource(stream);
+    __log('Media stream created.' );
+    __log("input sample rate " +input.context.sampleRate);
+
+    input.connect(audio_context.destination);
+    __log('Input connected to audio context destination.');
+
+    recorder = new Recorder(input);
+    __log('Recorder initialised.');
+    setStartButton(false);
+  }
+
+  function startRecording(button) {
+    recorder && recorder.record();
+    button.disabled = true;
+    //button.nextElementSibling.disabled = false;
+    setStartButton(true);
+    setStopButton(false);
+    __log('Recording...');
+  }
+
+  function stopRecording(button) {
+    recorder && recorder.stop();
+    button.disabled = true;
+    //button.previousElementSibling.disabled = false;
+    setStartButton(false);
+    setStopButton(true);
+    __log('Stopped recording.');
+    
+    // create WAV download link using audio data blob
+    createDownloadLink();
+    
+    recorder.clear();
+  }
+
+  function setStartButton(state){
+    document.getElementById("button_start").disabled = state;
+  }
+
+  function setStopButton(state){
+    document.getElementById("button_stop").disabled = state;
+  }
+
+  function createDownloadLink() {
+    recorder && recorder.exportWAV(function(blob) {
+      /*var url = URL.createObjectURL(blob);
+      var li = document.createElement('li');
+      var au = document.createElement('audio');
+      var hf = document.createElement('a');
+      
+      au.controls = true;
+      au.src = url;
+      hf.href = url;
+      hf.download = new Date().toISOString() + '.wav';
+      hf.innerHTML = hf.download;
+      li.appendChild(au);
+      li.appendChild(hf);
+      recordingslist.appendChild(li);*/
+    });
+  }
+
+  window.onload = function init() {
+    try {
+      setStartButton(true);
+      // webkit shim
+      window.AudioContext = window.AudioContext || window.webkitAudioContext;
+      navigator.getUserMedia = ( navigator.getUserMedia ||
+       navigator.webkitGetUserMedia ||
+       navigator.mozGetUserMedia ||
+       navigator.msGetUserMedia);
+      window.URL = window.URL || window.webkitURL;
+      
+      audio_context = new AudioContext;
+      __log('Audio context set up.');
+      __log('navigator.getUserMedia ' + (navigator.getUserMedia ? 'available.' : 'not present!') + ', Click allow button.');
+    } catch (e) {
+      setStartButton(true);
+      alert('No web audio support in this browser!');
+    }
+    
+    navigator.getUserMedia({audio: true}, startUserMedia, function(e) {
+      __log('No live audio input: ' + e);
+      setStartButton(true);
+    });
+  };
+</script> 
+<script src="recordmp3.js"></script>   
+<script src="../bootstrap-material-design/dist/jquery-1.11.min.js"></script> 
+<script src="../bootstrap-material-design/dist/js/bootstrap.min.js"></script> 
+<script src="../bootstrap-material-design/dist/js/material.min.js"></script> 
+</body>
+</html>

@@ -1,0 +1,223 @@
+{#
+
+/*--------------------------------------------------------------------
+Description:	Listing and management the add-ons
+Authors:		Marutpong Chailangka
+Created:		2016-05-08
+Updateed:       
+---------------------------------------------------------------------*/
+#}
+
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Add-ons</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="author" content="Marutpong Chailangka">
+    <link href="../bootstrap-material-design/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="../bootstrap-material-design/dist/css/material-fullpalette.min.css" rel="stylesheet">
+    <link href="../bootstrap-material-design/dist/snackbar.min.css" rel="stylesheet">
+</head>
+<body>
+{% module Template(config_data['header_path'], config_data=config_data, arguments=arguments) %}
+
+    <div class="container">
+        <div class="panel panel-primary">
+            <div class="panel-body">
+
+                <h1 class="text-info visible-lg">Add-ons</h1>
+                <h3 class="text-info hidden-lg">Add-ons</h3>
+
+                <p class="text-muted">Description</p>
+
+                {# /* <p class="text-muted">Online UI Builder avaliable at <a href="https://01.org/rib/online/" target="_blank">https://01.org/rib/online/</a> 
+                    or on Raspberry Pi at <a href="/www/rapid_interface_builder/index.html" target="_blank">"/www/rapid_interface_builder"</a></p> */ #}
+                    <br>
+
+                    <div class="row">
+                        <div class="col-lg-8 col-lg-offset-2">
+                            <div class="bs-component">
+
+                                <div class="list-group">
+
+                                    
+                                    <div class="list-group-item">
+                                        <button class="btn btn-fab btn-raised btn-sm btn-success"> <i class="mdi-content-add"></i></button>
+                                        <div class="row-content">
+                                            <h4 class="list-group-item-heading text-success"><p class="text-success">&nbsp;&nbsp;Upload File</p></h4>
+
+                                            <form id="form_upload" action="/api/addons/new" method="post" enctype="multipart/form-data">
+
+                                                <div class="form-group">
+
+                                                  <div class="col-md-10">
+                                                    <input type="text" readonly="" class="form-control" placeholder="Browse...">
+                                                    <input type="file" id="file" name="file" accept=".py">
+                                                    <br>
+                                                  </div>
+                                                    <div class="col-md-2">
+                                                        <button type="submit" value="Upload" name="submit" class="btn btn-info btn-fab btn-fab-mini"><i class="mdi-file-file-upload"></i></button>
+
+                                                    </div>
+                                                </div>
+                                            </form>
+                                        </div>
+                                    </div>
+                                    <div class="list-group-separator"></div>
+
+                                    <div id="listfile_area">
+                                        {% for entry in config_data['addons_config'] %}
+                                        {% set oentry = config_data['addons_config'][entry] %}
+                                        <div data-filename="{{ entry }}">
+                                            <div class="list-group-item">
+                                                <div class="row-action-primary">
+                                                    <i class="mdi-editor-insert-drive-file btn-info"></i>
+                                                </div>
+                                                <div class="row-content">
+                                                    <div class="col-lg-11 col-md-10" >
+                                                        <h4 class="list-group-item-heading"><a href="/api/addons/get/{{ entry }}">{{ entry }}</a></h4>
+                                                        <p class="list-group-item-text"></p>
+                                                    </div>
+                                                    <div class="col-lg-1 col-md-2" >
+                                                        <div class="togglebutton" style="vertical-align:middle;">
+                                                        <label>
+                                                        <input class="toggle_autorun" data-name="{{entry}}" {% if oentry['active']==True %} checked="checked" {% end %} type="checkbox"> <span class="toggle"></span>
+                                                        </label>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="list-group-separator"></div>
+                                        {% end %}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <script src="../bootstrap-material-design/dist/jquery-1.11.min.js"></script>
+        <script src="../bootstrap-material-design/dist/js/bootstrap.min.js"></script>
+        <script src="../bootstrap-material-design/dist/js/material.min.js"></script>
+        <script src="../bootstrap-material-design/dist/snackbar.min.js"></script>
+        <div class="hidden">
+            <div class="alert alert-dismissible alert-warning template" >
+              <button type="button" class="close" data-dismiss="alert">×</button>
+              <h4>Error!</h4>
+              <p class="message">Error</p>
+            </div>
+        </div>
+        <script>
+            $template = $('.alert.template')
+            $( ".toggle_autorun" ).click(function() {
+
+                data = {filename    :$(this).data( "name" ),
+                        active :$(this).prop( "checked" )};
+                console.log( data );
+                save(data, this);
+            });
+
+            function save(data, object){
+                var txtAction =  (data.active ? 'Activated ' : 'Deactivated ')
+                var $object = $("[data-filename='" +data.filename+ "']");
+                $.post( "/api/addons/setting", data, function(result) {
+                  console.log(result)
+                  if (result.result==true){
+                    console.log(result)
+                    $.snackbar({content: txtAction + data.filename +' success.'})
+                  } else {
+                    $.snackbar({content: txtAction + data.filename +' error.'})
+                    $(object).removeProp("checked")
+                  }
+
+                  if (result.start.result == false){
+                    $clone = $template.clone( true );
+                    $clone.children('.message').html(result.start.error);
+                    $clone.appendTo( $object );
+
+                  }
+
+                })
+                  .fail(function() {
+                    console.log("fail")
+                    if (data.active){
+                        $(object).removeProp("checked")
+                    } else {
+                        $(object).prop( "checked","checked" );
+                    }
+                    $.snackbar({content: txtAction + data.filename +' error.'})
+                  });
+            }
+
+
+            $( '#form_upload' )
+              .submit( function( e ) {
+                e.preventDefault();  
+                
+
+
+                var file_data = $("#file").prop("files")[0];   // Getting the properties of file from file field
+
+                if (!file_data){
+                    $.snackbar({content: 'Please select a file to upload.'})
+                    return false;
+                }
+
+                var form_data = new FormData();                  // Creating object of FormData class
+                form_data.append("file", file_data)              // Appending parameter named file with properties of file_field to form_data
+                form_data.append("confirm", false)
+                
+                uploadFile(form_data);
+
+              } );
+
+            function uploadFile(form_data){
+
+                var txtAction = "Upload file "
+                var filename = form_data.get('file').name;
+                filename = !filename ? '' : filename;
+
+                $.ajax({
+                            url: "/api/addons/new",
+                            cache: false,
+                            contentType: false,
+                            processData: false,
+                            data: form_data,
+                            type: 'post'
+                   })
+                .done(function(result) {
+                    console.log( result );
+                    if (result.result==true){
+                        $.snackbar({content: txtAction + filename +' success.'})
+                        $("#file").val('');
+
+                        if ('message' in result && result.message==false){
+                            location.reload();
+                            window.location.reload();
+                        }
+
+                      } else {
+                        if ('message' in result && result.message=='file_exists'){
+                            if (confirm("Di you want to overwrite the file named "+filename+ " ?")){
+                                form_data.append("confirm", true)
+                                uploadFile(form_data);
+                            }
+                        } else if ('message' in result && result.message=='file_reserved'){
+                            $.snackbar({content: 'File named ' + filename +' has reserved.'})
+                        } else {
+                            $.snackbar({content: txtAction + filename +' error.'})
+                        }
+                        
+                      }
+                })
+                .fail(function() {
+                    $.snackbar({content: txtAction + filename +' error.'})
+                })
+
+            }
+        </script>
+    </body>
+    </html>

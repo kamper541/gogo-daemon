@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html>
+<!-- MEMO: update me with `git checkout gh-pages && git merge master && git push origin gh-pages` -->
+<head>
+  <meta charset="utf-8">
+  <title>GoGo | Setting</title>
+  <link href="bootstrap-material-design/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="bootstrap-material-design/dist/css/material-fullpalette.min.css" rel="stylesheet">
+  <link href="bootstrap-material-design/dist/snackbar.min.css" rel="stylesheet">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="author" content="Marutpong Chailangka">
+</head>
+<body>
+{% module Template(config_data['header_path'], config_data=config_data, arguments=arguments) %}
+  <div class="container">
+    <form class="form-horizontal" name="setting-pushbullet" action="save_setting.php" method="POST">
+    <div class="panel panel-success">
+      <div class="panel-heading">
+        <h3 class="panel-title">Setting</h3>
+      </div>
+      <div class="panel-body">
+        <br>
+        <div id="notification"></div>
+          <fieldset>
+
+            <legend>Cloud Data</legend>
+            <div class="form-group">
+              <label for="inputToken" class="col-lg-2 control-label">API Key</label>
+              <div class="col-lg-10">
+                <input type="text" class="form-control" id="input_clouddata_key" name="input_clouddata_key" placeholder="API Key" minlength="16" maxlength="16">
+              </div>
+            </div>
+
+            <legend>Pushbullet</legend>
+            <div class="form-group">
+              <label for="inputToken" class="col-lg-2 control-label">Token</label>
+              <div class="col-lg-10">
+                <input type="text" class="form-control" id="input_pushbullet_token" name="input_pushbullet_token" placeholder="Push Bullet Token" minlength="34" maxlength="34">
+              </div>
+            </div>
+            <div class="form-group">
+              <label for="inputToken" class="col-lg-2 control-label"></label>
+              <div class="col-lg-10">
+                <p class="text-muted">Pushbullet Access Token is at <a href="https://www.pushbullet.com/account" target="_blank">https://www.pushbullet.com/account</a> on section Access Token</p>
+              </div>
+            </div>
+
+            <legend>Gmail</legend>
+            <div class="form-group">
+              <label for="input_gmail_username" class="col-lg-2 control-label">Gmail Username</label>
+              <div class="col-lg-10">
+                <input type="email" class="form-control" id="input_gmail_username" name="input_gmail_username" placeholder="Gmail Username">
+              </div>
+            </div>
+            <div class="form-group">
+              <label for="input_gmail_password" class="col-lg-2 control-label">Gmail Password</label>
+              <div class="col-lg-10">
+                <input type="password" class="form-control" id="input_gmail_password" name="input_gmail_password" placeholder="Gmail Password" >
+              </div>
+            </div>
+
+            <legend>Wifi Configuation</legend>
+            <div class="form-group">
+              <label for="input_wifi_ssid" class="col-lg-2 control-label">Wifi SSID</label>
+              <div class="col-lg-10">
+                <input type="text" class="form-control" id="input_wifi_ssid" name="input_wifi_ssid" placeholder="Wifi SSID">
+              </div>
+            </div>
+            <div class="form-group">
+              <label for="input_wifi_password" class="col-lg-2 control-label">Wifi Password</label>
+              <div class="col-lg-10">
+                <input type="password" class="form-control" id="input_wifi_password" name="input_wifi_password" placeholder="Wifi Password" >
+              </div>
+            </div>
+            <div class="form-group">
+              <label for="checkbox_autoconnect_wifi" class="col-lg-2 control-label">Auto Connect</label>
+              <div class="col-lg-10">
+                <div class="togglebutton" style="vertical-align:middle;">
+                    <label>
+                        <input type="checkbox" name="checkbox_autoconnect_wifi"{% if config_data['settings']['autoconnect_wifi'] == True %} checked="checked" {% end %} >   <span class="toggle"></span>
+                    </label>
+                </div>
+              </div>
+              <input type="hidden" name="input_autoconnect_wifi" value=""> 
+            </div>
+
+            <legend>Configuration</legend>
+            <div class="form-group">
+              <div class="col-lg-10 col-lg-offset-2">
+              <input type="hidden" name="raspberry-pi" value="save">
+              <button type="submit" class="btn btn-success">Save</button>
+              </div>
+            </div>
+          </fieldset>
+
+        <span id="toast-success" class="btn btn-material-deeppurple hidden" onclick="javascript:$.snackbar({content: 'Saved Confiuration.'});">Create and show a snackbar.</span>
+        <span id="toast-error" class="btn btn-material-deeppurple hidden" onclick="javascript:$.snackbar({content: 'Saving configuration error.'});">Create and show a snackbar.</span>
+
+      </div>
+    </div>
+    </form>
+  </div>
+  <!-- Preloader -->
+  <script src="bootstrap-material-design/dist/jquery-1.11.min.js"></script>
+  <script src="bootstrap-material-design/dist/js/bootstrap.min.js"></script>
+  <script src="bootstrap-material-design/dist/js/material.min.js"></script>
+  <script src="bootstrap-material-design/dist/snackbar.min.js"></script>
+  <script type="text/javascript">
+    $("form").on("submit",function(event){
+      event.preventDefault();
+      //$.post("save_setting.php",$(this).serialize())
+      $('[name=input_autoconnect_wifi]').val( $('[name=checkbox_autoconnect_wifi]').prop( "checked" ) );
+      $.post( "/api/config", $(this).serialize())
+        .done(function(data) {
+          console.log(data);
+          //var data = JSON.parse(data);
+          if (data.result == true){
+            $("#toast-success").click();
+          } else {
+            console.log(data);
+            $("#toast-error").click();
+          }
+        })
+        .fail(function() {
+          $("#toast-error").click();
+        });
+    });
+  </script>
+</body>
+</html>

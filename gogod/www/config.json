@@ -1,0 +1,56 @@
+{
+  "gogod_version" : "2.0.0 beta",
+  "gogod_updated" : "2016-06-30",
+  "image_size": "110",
+  "element": [
+    {
+      "url": ":8888/screen/index.html",
+      "image": "gogo_display.png",
+      "label": "Display",
+      "color": "#2196f3",
+      "icon": "mdi-hardware-desktop-windows"
+    },
+    {
+      "url": ":8889/filemanager/dialog.php?fldr=/",
+      "image": "gogo_filemanager.png",
+      "label": "File Manager",
+      "color": "#795548",
+      "icon": "mdi-file-folder"
+    },
+    {
+      "url": ":8888/www/datalogging/",
+      "image": "gogo_data_log.png",
+      "label": "Data Logging",
+      "color": "#2e7d32",
+      "icon": "mdi-action-assessment"
+    },
+    {
+      "url": ":8888/www/soundrecorder/",
+      "image": "gogo_sound_recorder.png",
+      "label": "Sound Recording",
+      "color": "#f44336",
+      "icon": "mdi-av-mic"
+    },
+    {
+      "url": ":8888/www/webui/",
+      "image": "gogo_html.png",
+      "label": "Web UI",
+      "color": "#283593",
+      "icon": "mdi-editor-insert-drive-file"
+    },
+    {
+      "url": ":8888/www/SpeechRecognition/",
+      "image": "gogo_speech_recognition.png",
+      "label": "Speech Recognition",
+      "color": "#38515f",
+      "icon": "mdi-av-hearing"
+    },
+    {
+      "url": ":8888/www/addons/",
+      "image": "gogo_addons.png",
+      "label": "Add-ons",
+      "color": "#ff9642",
+      "icon": "mdi-action-extension"
+    }
+  ]
+}

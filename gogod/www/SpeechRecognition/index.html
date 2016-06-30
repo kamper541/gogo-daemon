@@ -1,0 +1,247 @@
+{#
+/*--------------------------------------------------------------------
+Description:    Recognize the speech to text and send to raspberry pi.
+Authors:		Marutpong Chailangka
+Created:		2015-04-15
+Updateed:       2015-08-18
+                2015-10-10
+                2016-05-05
+---------------------------------------------------------------------*/
+#}
+<!DOCTYPE html>
+<html>
+<!-- MEMO: update me with `git checkout gh-pages && git merge master && git push origin gh-pages` -->
+<head>
+    <meta charset="utf-8">
+    <title>Speech Recognition</title>
+    <link href="../bootstrap-material-design/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="../bootstrap-material-design/dist/css/material-fullpalette.min.css" rel="stylesheet">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="author" content="Marutpong Chailangka">
+    <style type="text/css">
+
+    .blink_mex {
+        animation: blink 1s steps(5, start) infinite;
+        -webkit-animation: blink 1s steps(5, start) infinite;
+    }
+    @keyframes blink {
+        to {
+            visibility: hidden;
+        }
+    }
+    @-webkit-keyframes blink {
+        to {
+            visibility: hidden;
+        }
+    }
+
+    .blink_me {
+        -webkit-animation: blinker linear 1.5s infinite;
+        -moz-animation: blinker linear 1.5s infinite;;
+        animation: blinker linear 1.5s infinite;
+    }
+
+    @-moz-keyframes blinker {  
+        0% { opacity: 1.0; }
+        50% { opacity: 0.0; }
+        100% { opacity: 1.0; }
+    }
+
+    @-webkit-keyframes blinker {  
+        10% { opacity: 1.0; }
+        50% { opacity: 0.0; }
+        90% { opacity: 1.0; }
+    }
+
+    @keyframes blinker {  
+        10% { opacity: 1.0; }
+        50% { opacity: 0.0; }
+        90% { opacity: 1.0; }
+    }
+    </style>
+</head>
+<body>
+{% module Template(config_data['header_path'], config_data=config_data, arguments=arguments) %}
+    <div class="container">
+        <div class="panel panel-primary">
+            <div class="panel-body">
+                <h1 class="text-info visible-lg">Speech Recognition</h1>
+                <h3 class="text-info hidden-lg">Speech Recognition</h3>
+                <p class="text-muted">Recognized text is available via the key "speech"</p><br>
+                <div class="row block">
+                    <div class="col-lg-2 col-md-2 col-sm-3 col-xs-4">
+                        <span class="text-muted">Speech accent</span>
+                    </div>
+                    <div class="col-lg-6 col-md-6 col-xs-5 ">
+                        <div class="togglebutton" style="    vertical-align:middle;">
+                            <label>US 
+                                <input type="checkbox" name="langchange" id = "langchange" {% if 'th' in arguments %} checked = "checked" {% end %} >   <span class="toggle"></span>  TH
+                            </label>
+                        </div>
+                    </div>
+                </div>
+                <div class="list-group">
+                    <div class="list-group-item">
+                        <div class="row-action-primary"  onclick="toggle_recognize()">
+                            <i class="mdi-av-hearing" id="blink" style="background:#ff5722;"></i>
+                        </div>
+                        <div class="row-content">
+                            <p class="list-group-item-text text-warning"><span id="speech_interim"></span></p>
+                        </div>
+                    </div>
+                </div>
+                <hr>
+                <div class="list-group" id="speech_result"></div>
+            </div>
+        </div>
+    </div>
+    <!-- Preloader -->
+    <script src="../bootstrap-material-design/dist/jquery-1.11.min.js"></script>
+    <script src="../bootstrap-material-design/dist/js/bootstrap.min.js"></script>
+    <script src="../bootstrap-material-design/dist/js/material.min.js"></script>
+    <script src="../hub/reconnecting-websocket.min.js"></script>
+    <script type="text/javascript">
+        //http://shapeshed.com/html5-speech-recognition-api/
+        var recognition = new webkitSpeechRecognition();
+        recognition.continuous = true;
+        recognition.interimResults = true;
+
+        
+
+        recognition.lang = "{% if 'th' in arguments %}th-TH{% else %}false{% end %}";
+
+        var num_display_result = 10;
+        var confidence_list = [];
+
+        recognition.onresult = function (event) {
+            var final = "";
+            var interim = "";
+            for (var i = 0; i < event.results.length; ++i) {
+                if (event.results[i].isFinal) {
+                    final = event.results[i][0].transcript;
+                    confidence = event.results[i][0].confidence
+                    if (confidence_list.indexOf(confidence)<0){
+                        confidence_list.push(confidence);
+                        handleSpeechResult(final);
+                    }
+                } else {
+                    interim += event.results[i][0].transcript;
+                }
+            }
+
+            document.getElementById("speech_interim").innerHTML = interim;
+        }
+
+        recognition.start();
+
+        recognition.onstart = function(event){
+            console.log("Speech Recognition Started");
+            $("#blink").addClass("blink_me");
+            $("#blink").css("background-color", "#4caf50");
+        }
+
+        recognition.onend = function(event){
+            console.log("Speech Recognition Stopped");
+            $("#blink").removeClass("blink_me");
+            $("#blink").css("background-color", "#ff5722");
+        }
+
+        function append_speech_result(phrase){
+            var entry_template = '<div class="entry"> \
+            <div class="list-group-item"> \
+            <div class="row-action-primary"> \
+            <i class="mdi-action-list"></i> \
+            </div> \
+            <div class="row-content"> \
+            <p>'+phrase+'</p> \
+            </div> \
+            </div> \
+            <div class="list-group-separator"></div> \
+            </div>';
+        //document.getElementById("speech_result").innerHTML = entry_template+document.getElementById("speech_result").innerHTML;
+        //$('#speech_result').prepend(entry_template).fadeIn('slow');
+        $('#speech_result').prepend(
+            $(entry_template).hide().fadeIn('slow')
+            );
+        if ($('#speech_result').children().length > num_display_result){
+            for (var i=num_display_result ; i<$('#speech_result').children().length ; i++){
+                $('#speech_result').children()[i].remove();
+            }
+        }
+        }
+
+        function toggle_recognize(){
+            if ($('.blink_me').length > 0){
+                stop_recognize();
+            } else {
+                start_recognize();       
+            }
+        }
+        function start_recognize(){
+            recognition.start();
+        }
+
+        function stop_recognize(){
+            recognition.stop();
+        }
+
+        function restart_recognize(){
+            recognition.stop();
+            recognition.start();
+        }
+
+
+        function speak(phrase){
+            var msg = new SpeechSynthesisUtterance(phrase);
+            window.speechSynthesis.speak(msg);
+        }
+
+        function handleSpeechResult(phrase) {
+            var string = "keyvalue,speech,"+phrase;
+            document.getElementById("speech_interim").innerHTML = ""
+            ws.send(string);
+        }
+
+        var ws = new ReconnectingWebSocket("ws://"+window.location.hostname+":8888/ws");
+        ws.onmessage = function (evt) {
+            cmd = evt.data.split(",");
+            if (cmd[0] == "play_sound") {
+        //var aud = new Audio("/media/" + cmd[1]);
+        //aud.play();               
+        var aud = document.getElementById("sound");
+        // Adds a uniqute time parameter so the browser re-loads
+        // the image instead of using the cached one
+        if (currentSound!==cmd[1]){
+            aud.src = "/media/" + cmd[1];
+            currentSound = cmd[1];
+        }
+        aud.play()
+        } else if (cmd[0] == "say"){
+            console.log("saying :  "+cmd[1]);
+            speak(cmd[1]);
+        } else if (cmd[0] == "speech"){
+            append_speech_result(cmd[1]);
+        }
+        };
+
+        $( "#speech_interim" ).parent().click(function() {
+            handleSpeechResult( $( "#speech_interim" ).html() );
+        });
+
+
+        $( "#langchange" ).click(function() {
+            if ($('#langchange').prop( "checked" ) ){
+                window.location.href  = "index.html?th"
+                recognition.lang = "th-TH";
+            } else {
+                window.location.href  = "index.html"
+                recognition.lang = "en-US";
+            }
+            console.log(recognition.lang);
+            restart_recognize()
+        });
+
+
+        </script>
+</body>
+</html>

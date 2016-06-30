@@ -1,0 +1,7 @@
+[
+	{ "id":"1", "value":"acx100-source", "Version":"20080210-1.1", "Maintainer":"Stefano Canepa <sc@linux.it>"},
+	{ "id":"2", "value":"alien-arena-browser", "Version":"7.0-1", "Maintainer":"Debian Games Team <pkg-games-devel@lists.alioth.debian.org>"},
+	{ "id":"3", "value":"alien-arena-server", "Version":"7.0-1", "Maintainer":"Debian Games Team <pkg-games-devel@lists.alioth.debian.org>" },
+	{ "id":"4", "value":"alien-arena", "Version":"7.0-1", "Maintainer":"Debian Games Team <pkg-games-devel@lists.alioth.debian.org>" },
+	{ "id":"5", "value":"alsa-firmware-loaders", "Version":"1.0.21-1", "Maintainer":"Debian ALSA Maintainers <pkg-alsa-devel@lists.alioth.debian.org>" }
+]

@@ -1,0 +1,102 @@
+<html>
+	
+	<head>
+		<title>Pi Display</title>
+		<!--<link rel="stylesheet" href="fullscreen.css">
+		-->
+		<script src="http://{{ws_ip}}:8888/www/hub/reconnecting-websocket.min.js"></script>
+		<script type="text/javascript"> 
+	
+		var firstclick = false;
+		var currentSound = "mute.mp3";
+		var currentImg = "";
+		function sendFeedback() {
+
+		  if (firstclick==false){
+				firstclick = true;
+				var aud = document.getElementById("sound");
+				aud.play();
+				aud.volume=1;
+			}			
+		  e = window.event;
+		  //alert('x = ' + e.pageX + " y = " + e.pageY);
+		  
+		  var bgpic=document.getElementById("bgimage");	
+		  if (ws.readyState == 1) {
+			  //ws.send(e.pageX+","+e.pageY)
+			  //ws.send(bgpic.src);
+			  ws.send("tapped," + e.pageX + "," + e.pageY);
+		  }
+
+		}
+		
+
+		
+		var ws = new ReconnectingWebSocket("ws://{{ws_ip}}:8888/ws");
+				
+        // when data is comming from the server, this metod is called
+        ws.onmessage = function (evt) {
+            //inc.innerHTML += evt.data + '<br/>';
+            cmd = evt.data.split(",");
+            if (cmd[0] == "set_image") {
+            	var bgpic=document.getElementById("bgimage");
+				if (cmd[1]=='snapshots/current.jpg') {
+					bgpic.src="/media/" + cmd[1] +"?t=" + new Date().getTime();
+				} else {
+					bgpic.src="/media/" + cmd[1];//+"?t=" + new Date().getTime();
+				}
+				
+			} else if (cmd[0] == "play_sound") {
+				//var aud = new Audio("/media/" + cmd[1]);
+				//aud.play();				
+				var aud = document.getElementById("sound");
+				aud.volume=1;
+				// Adds a uniqute time parameter so the browser re-loads
+				// the image instead of using the cached one
+				if (currentSound!==cmd[1]){
+					aud.src = "/media/" + cmd[1];
+					currentSound = cmd[1];
+				}
+				aud.play()
+			} else if (cmd[0] == "say"){
+				console.log("saying :  "+cmd[1]);
+				var msg = new SpeechSynthesisUtterance(cmd[1]);
+				window.speechSynthesis.speak(msg);
+			}
+        };
+
+		</script>
+		
+		<!-- Image full screen CSS -->
+		<style>
+			html, body {
+			  height: 100%;
+			  width: 100%;
+			  padding: 0;
+			  margin: 0;
+			}
+			
+			#bgimage {
+			  min-width: 320px;
+			  width: 100%;
+			  height: auto;
+			  position: fixed;
+			  top: 0;
+			  left: 0;
+			}
+			
+			#wrapper {
+			  position: relative;
+			  width: 800px;
+			  min-height: 400px;
+			  margin: 100px auto;
+			  color: #333;
+			}
+		</style>
+		
+	</head>
+<body>
+  <img alt="full screen background image" src="/media/{{current_image}}" onclick="sendFeedback()" id="bgimage" /> 
+  <audio src="/media/mute.mp3" id="sound"/></audio>
+</body>
+</html>

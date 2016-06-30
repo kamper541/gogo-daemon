@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html>
+<!-- MEMO: update me with `git checkout gh-pages && git merge master && git push origin gh-pages` -->
+<head>
+    <meta charset="utf-8">
+    <title>Data Logger</title>
+    <link href="../bootstrap-material-design/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="../bootstrap-material-design/dist/css/material-fullpalette.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="bootstrap-chosen/bootstrap.css" />
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="author" content="Marutpong Chailangka">
+</head>
+<body>
+{% module Template(config_data['header_path'], config_data=config_data, arguments=arguments) %}
+    <div class="container">
+        <div class="panel panel-primary">
+            <div class="panel-body">
+                <div class="togglebutton" style="    vertical-align:middle;">
+                    <label><i class="mdi-action-autorenew"></i> Auto Update
+                        <input type="checkbox" name="auto_update">   <span class="toggle"></span>
+                    </label>
+                </div>
+                <div id="container" style=" min-width: 310px" class="infobox"></div>
+            </div>
+        </div>
+    </div>
+    <!-- Preloader -->
+
+    <script src="../bootstrap-material-design/dist/jquery-1.11.min.js"></script>
+    <script src="../bootstrap-material-design/dist/js/bootstrap.min.js"></script>
+    <script src="../bootstrap-material-design/dist/js/material.min.js"></script>
+    <script src="../hub/reconnecting-websocket.min.js"></script>
+    <script src="highstock.js"></script>
+    <script src="exporting.js"></script>
+    <script src="export-csv.js"></script>
+    <script type="text/javascript" src="log_script_html.js"></script>
+
+
+</body>
+</html>

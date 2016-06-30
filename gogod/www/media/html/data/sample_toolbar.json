@@ -1,0 +1,5 @@
+[
+	{ type: 'label', label: 'Label 1', align: 'left', id: 1290594499323 },
+	{ type: 'button', label: 'Button 1', align: 'left', id: 1290594499338 },
+	{ type: 'button', label: 'Button 2', align: 'left', id: 1290594499349 }
+]
