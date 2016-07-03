@@ -11,8 +11,7 @@
  * Changed  fail to upload queue from variable to a file 
  * Updated handling the queue and normal logging
  * Updated method of sending to server by using the requests module
-
-*Updated a checking token method in PushBullet
+* Updated a checking token method in PushBullet
 
 ### Version 2.0.0(Beta) - 2016-07-01 - Marutpong Chailangka
 * Updated html rendering from PHP to python (Tornado) except filemanager
