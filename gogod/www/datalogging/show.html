@@ -30,11 +30,18 @@
     <script src="../bootstrap-material-design/dist/js/bootstrap.min.js"></script>
     <script src="../bootstrap-material-design/dist/js/material.min.js"></script>
     <script src="../hub/reconnecting-websocket.min.js"></script>
+    <script type="text/javascript">
+        $(function() {
+            $(window).resize(function() {
+                $('#container').height($(window).height() - 40 - $('#container').offset().top);
+            });
+            $(window).resize();
+        });
+    </script>
     <script src="highstock.js"></script>
     <script src="exporting.js"></script>
     <script src="export-csv.js"></script>
     <script type="text/javascript" src="log_script_html.js"></script>
-
 
 </body>
 </html>

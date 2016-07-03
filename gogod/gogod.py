@@ -38,10 +38,6 @@ APPLICATION_PATH = os.path.abspath(os.path.dirname(sys.argv[0]))
 WWW_PATH = os.path.join(APPLICATION_PATH, "www")
 MEDIA_PATH = os.path.join(APPLICATION_PATH, "www", "media")
 
-''' Note **********
-changed sms cmd
-'''
-
 
 class GogoD():
     def __init__(self):
@@ -373,8 +369,8 @@ class GogoD():
                 sms_number = arg[0]
                 sms_message = arg[1]
                 print "SMS : send to %s" % (sms_number)
-                # sms.send(self.sms_status_callback, sms_number, sms_message)
-                self.broadcast_to_interface(sms_number, sms_message)
+                sms.send(self.sms_status_callback, sms_number, sms_message)
+                #self.broadcast_to_interface(sms_number, sms_message)
 
             elif cmd[1] == const.RPI_REBOOT:
                 print "Reboot"
@@ -411,7 +407,7 @@ class GogoD():
                 # value = (ord(value[0]) << 8) + (ord(value[1])) # high byte + low byte
                 # print "Logging : recording %d as %s" % (value, file_name)
 
-                self.hable_data_logging(file_name, value)
+                self.handle_data_logging(file_name, value)
 
 
             elif cmd[1] == const.RPI_SHOW_LOG_PLOT:

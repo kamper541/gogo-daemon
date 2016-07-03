@@ -39,7 +39,7 @@ for($i=0;$i<sizeof($config['element']);$i++)  {
 
 
         <li {% if entry['url'] in config_data['url'] %}class="active"{% end %} >
-          <a href="{{ config_data['hostname'] }}{{ entry['url'] }}"><i class="{{ entry['icon'] }} hidden-sm"></i>{{ entry['label'] }}</a>
+          <a href="{{ config_data['hostname'] }}{{ entry['url'] }}"><i class="{{ entry['icon'] }} hidden-md hidden-sm"></i>{{ entry['label'] }}</a>
         </li>
       {% end %}
     </ul>
