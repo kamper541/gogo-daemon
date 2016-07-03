@@ -28,3 +28,5 @@ $ sudo apt-get install -f
 	 - Choose the drive letter that is assigned to the SD Card such as <kbd>F:</kbd>
 	 - Click **Write**
 	 - https://www.raspberrypi.org/documentation/installation/installing-images/windows.md
+	 
+![Win32DiskImager](https://git.learninginventions.org/gogo/gogod/raw/master/docs/images/installation/win32diskimager.png)
