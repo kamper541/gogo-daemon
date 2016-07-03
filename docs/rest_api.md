@@ -1,14 +1,14 @@
 REST API
 -------
 
-### Key-Value
+### **Key-Value**
 
 
 	GET /api/keyvalue/:key/:value
 	
-### Data Logging
+### **Data Logging**
 
- - List log file
+ - **List log files**
 
 	```
 	GET /api/datalog/list
@@ -24,7 +24,7 @@ REST API
 	  "result": true
 	}
 	```
- - Getting log
+ - **Getting a Log**
 
 
 	Getting JSON format of log values by *filename* followed by `.json`
@@ -66,7 +66,7 @@ Response
 	```
 	
 
- - Adding a record
+ - **Adding a record**
 	```
 	POST /api/datalog/new
 	
@@ -78,7 +78,7 @@ Response
 	  "result": true
 	}
 	```
- - Delete the log by given a name
+ - **Delete the log by given a name**
 
 	```
 	GET /api/datalog/delete/:filename
@@ -90,8 +90,8 @@ Response
 	}
 	```
 
-### Add-Ons
- - List the add-ons 
+### **Add-Ons**
+ - **List the add-ons**
 
 	```
 	GET /api/addons/list
@@ -105,7 +105,7 @@ Response
 	```
 
 
- - Getting the add-ons content
+ - **Getting the add-ons content**
 
 	```
 	GET /api/addons/get/:filename
@@ -113,7 +113,7 @@ Response
 	It will return the python file (.py)
 
 
- - Validate a python file by name
+ - **Validate add-ons (a python file) by name**
 
 	```
 	GET /api/addons/verify/:filename
@@ -126,7 +126,7 @@ Response
 }
 	```
 
- - Getting activation status verification each file
+ - **Getting activation status verification each file**
 
 	```
 	GET /api/addons/setting
@@ -150,7 +150,7 @@ Response
 }
 	```
 
- - Active or Deactive the add-ons
+ - **Active or Deactive the add-ons**
 
 	```
 	POST /api/addons/setting
@@ -171,7 +171,7 @@ Response
 	}
 	```
 
- - Uploading a file
+ - **Uploading a python file**
 		
 	**confirm** is a confirm of overwritten if a file has exists.
 		
