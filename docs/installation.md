@@ -8,7 +8,7 @@ Installation
 ```bash
 $ sudo apt-get update
 $ wget https://git.learninginventions.org/gogo/gogod/raw/master/package/gogod_2.0.0-14.deb
-$ sudo apt-get install gogod_2.0.0-14.deb
+$ sudo dpkg -i gogod_2.0.0-14.deb
 ```
 
 > **Note:** if you got a problem like this
