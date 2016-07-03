@@ -38,16 +38,20 @@ class AddOnsManager():
 
     def load_config(self):
 
+        # Load the latest config
         file_list = self.list_files()
         config_list = self.conf.get_addons()
 
+        # Set verification of each file
         for each_file in file_list:
             self.conf.set_addons_verify_status(each_file)
 
+        # Chack the file is exists in config.
         for each_file in config_list:
             if each_file not in file_list:
                 self.conf.unset_addons(each_file)
 
+        # get avlid config again
         return self.conf.get_addons()
 
     def rest_setting(self, arguments):
@@ -136,6 +140,10 @@ class AddOnsManager():
 
     def verify(self, filename):
         filename = os.path.join(ADDONS_PATH, filename)
+        print filename
+        if not os.path.exists(filename):
+            return {'result': False, 'error': 'No file exist.'}
+
         cmd = "python -m py_compile %s" % filename
 
         p = subprocess.Popen(cmd.split(), stdout=subprocess.PIPE, stderr=subprocess.PIPE)
@@ -145,8 +153,8 @@ class AddOnsManager():
 
     def upload_file(self, params):
 
-        result = {'result': False, 'confirm': False}
-        result['confirm'] = params['confirm'] == 'true'
+        result = {'result': False}
+        confirm = params['confirm'] == 'true'
         filename = params['file']['filename']
         full_file_path = os.path.join(ADDONS_PATH, filename)
         print LOG_TITLE + 'file named %s' % filename
@@ -159,7 +167,7 @@ class AddOnsManager():
 
         # Check file exists?
         result['message'] = (os.path.exists(full_file_path))
-        if result['message'] and not result['confirm']:
+        if result['message'] and not confirm:
             result['message'] = 'file_exists'
             print LOG_TITLE + 'file exists'
             return result

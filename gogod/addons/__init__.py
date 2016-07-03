@@ -1,5 +1,4 @@
 #!/usr/bin/python
-print "mymessage"
 from . import *
 import os, sys, threading, time
 #import default
@@ -21,8 +20,8 @@ class Addons (threading.Thread):
         
         for f in os.listdir(os.path.abspath(dir)):       
             module_name, ext = os.path.splitext(f) # Handles no-extension files, etc.
-            if module_name != '__init__' and ext == '.py': # Important, ignore .pyc/other files.
-                print 'Addons \t: imported %s' % (module_name) 
+            #if module_name != '__init__' and ext == '.py': # Important, ignore .pyc/other files.
+                ##print 'Addons \t: imported %s' % (module_name)
                 #module = __import__(module_name)
                 #library_list.append(module)
                 #module.sendKeyValue = self.sendKeyValue

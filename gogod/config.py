@@ -50,15 +50,24 @@ class Config():
 
     def get_not_credential(self):
         data = self.get_all()
-        return {self.autoconnect_wifi: data[self.autoconnect_wifi]}
+        return {self.autoconnect_wifi: data[self.autoconnect_wifi]
+                , self.enable_log_file:data[self.enable_log_file]
+                , self.enable_log_cloud: data[self.enable_log_cloud]
+
+                }
 
     def get_all(self):
         if os.path.exists(CONFIG_FILE):
             jsonFile = open(CONFIG_FILE, "r")
             data = json.load(jsonFile)
-            data[self.autoconnect_wifi] = data[self.autoconnect_wifi] in (True, "yes", "True", "true", "t", "1")
+            data[self.autoconnect_wifi] = self.is_true(data[self.autoconnect_wifi])
+            data[self.enable_log_file] = self.is_true(data[self.enable_log_file])
+            data[self.enable_log_cloud] = self.is_true(data[self.enable_log_cloud])
             return data
         return {}
+
+    def is_true(self, value):
+        return value in (True, "yes", "True", "true", "t", "1")
 
     def get(self, name):
         data = self.get_all()
@@ -71,7 +80,7 @@ class Config():
         return None
 
     def save_to_file(self, params):
-        #print params
+
         if self.status_callback is not None and (self.gmail_username in params or self.gmail_password in params):
             self.status_callback(10 + self.EmailStatus.CONNECTING)
 
@@ -82,11 +91,18 @@ class Config():
             jsonFile.close()
 
             for key, value in params.iteritems():
+
+                if not self.is_valid_config_name(key):
+                    continue
+
                 if key == self.gmail_password:
                     value = None if value == "None" else value
                     data[key] = self.enc.EncodeAES(value)
                 else:
                     data[key] = value
+
+                self.current[key] = value
+
 
             jsonFile = open(CONFIG_FILE, "w+")
             jsonFile.write(json.dumps(data))

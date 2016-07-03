@@ -410,18 +410,9 @@ class GogoD():
                 file_name, value = text_cmd[2:].split(',')
                 # value = (ord(value[0]) << 8) + (ord(value[1])) # high byte + low byte
                 # print "Logging : recording %d as %s" % (value, file_name)
-                self.data_logger.log(value, file_name)
-                self.cloud_logger.log(file_name, value)
-                # Broadcast to WS
-                packet = {
-                    "event": "datalog",
-                    "name": file_name,
-                    "datetime": self.data_logger.get_datetime_str(),
-                    "value": value
-                }
-                self.broadcast_websocket("%s,%s" % ("datalog", json.dumps(packet)))
-                # log to Database
-                # loggerdb.log(value, file_name)
+
+                self.hable_data_logging(file_name, value)
+
 
             elif cmd[1] == const.RPI_SHOW_LOG_PLOT:
                 file_names, n = text_cmd[2:].split(';')  # n = number of latest points to show
@@ -457,7 +448,32 @@ class GogoD():
         # value can act on the buffer before it is sent
         self.send_buffer(self.TX_BUFFER)
 
+    def handle_data_logging(self, name=None, value=None):
+        value = self.data_logger.validate_number(value)
+        if (name is None or value is None):
+            return False
+
+        if self.conf.get(self.conf.enable_log_file):
+            self.data_logger.log(value, name)
+
+        if self.conf.get(self.conf.enable_log_cloud):
+            self.cloud_logger.log(name, value)
+
+        # Broadcast to WS
+        packet = {
+            "event": "datalog",
+            "name": name,
+            "datetime": self.data_logger.get_datetime_str(),
+            "value": value
+        }
+        self.broadcast_websocket("%s,%s" % ("datalog", json.dumps(packet)))
+
+        return True
+        # log to Database
+        # loggerdb.log(value, file_name)
+
     def handle_rest_api(self, event=None, value1=None, value2=None, arguments={}):
+        result_false = {'result': False}
         result = {'result': False}
 
         try:
@@ -484,11 +500,25 @@ class GogoD():
                 if value1 == 'list':
                     return {'result': True, 'data': self.data_logger.list_all_files()}
 
-                elif value1 == 'fetch':
-                    return {'result': True, 'data': self.data_logger.fetch_file(value2)}
+                elif value1 == 'get':
+                    if (value2.endswith('.json')):
+                        result['data'] = self.data_logger.fetch_file(value2,'json')
+                    else:
+                        result['data'] = self.data_logger.fetch_file(value2)
+                    if result['data'] is  not None:
+                        result['result'] = True
+                        return result
+                    return result_false
+
+                elif value1 == 'new' and 'name' in arguments and 'value' in arguments:
+                    result['result'] = self.handle_data_logging(arguments['name'], arguments['value'])
+                    return result
 
                 elif value1 == 'delete':
                     return {'result': self.data_logger.delete_files(value2)}
+
+                else:
+                    return {'result': False}
 
             elif event == 'addons':
 

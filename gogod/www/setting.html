@@ -84,7 +84,22 @@
               <input type="hidden" name="input_autoconnect_wifi" value=""> 
             </div>
 
-            <legend>Configuration</legend>
+            <legend>Logging</legend>
+            <div class="form-group">
+              <label for="checkbox_enable" class="col-lg-2 control-label">Enable logging to </label>
+              <div class="col-lg-10">
+                <div class="togglebutton" style="vertical-align:middle;">
+                    <label>
+                        <input type="checkbox" name="checkbox_enable_log_file"{% if config_data['settings']['enable_log_file'] %} checked="checked" {% end %} >   <span class="toggle"></span> File
+                    </label>
+                    <input type="hidden" name="input_enable_log_file" value=""> 
+                    <label>
+                        <input type="checkbox" name="checkbox_enable_log_cloud"{% if config_data['settings']['enable_log_cloud'] %} checked="checked" {% end %} >   <span class="toggle"></span> Cloud
+                    </label>
+                    <input type="hidden" name="input_enable_log_cloud" value=""> 
+                </div>
+              </div>
+            </div>
             <div class="form-group">
               <div class="col-lg-10 col-lg-offset-2">
               <input type="hidden" name="raspberry-pi" value="save">
@@ -110,6 +125,8 @@
       event.preventDefault();
       //$.post("save_setting.php",$(this).serialize())
       $('[name=input_autoconnect_wifi]').val( $('[name=checkbox_autoconnect_wifi]').prop( "checked" ) );
+      $('[name=input_enable_log_file]').val( $('[name=checkbox_enable_log_file]').prop( "checked" ) );
+      $('[name=input_enable_log_cloud]').val( $('[name=checkbox_enable_log_cloud]').prop( "checked" ) );
       $.post( "/api/config", $(this).serialize())
         .done(function(data) {
           console.log(data);

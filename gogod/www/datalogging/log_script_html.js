@@ -104,7 +104,7 @@ $(function () {
         $.each(names, function (i, name) {
 
             console.log("Loading...");
-            var fetch_url = '/api/datalog/fetch/'+name;
+            var fetch_url = '/api/datalog/get/'+name;
 
             $.getJSON(fetch_url,    function (data) {
 

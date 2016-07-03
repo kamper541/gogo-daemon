@@ -1,5 +1,19 @@
 # Changelog
 
+### Version 2.0.0(Beta 2) - 2016-07-04 - Marutpong Chailangka
+* Added configuration of logging
+* Add-ons
+ * Added checking file exists in verify API
+* Data logging
+ * Added a API to log a record
+ * Added a API to get the records in JOSN format by append '.json'
+ * Changed getting log records API from  'fetch' to 'get'
+ * Changed  fail to upload queue from variable to a file 
+ * Updated handling the queue and normal logging
+ * Updated method of sending to server by using the requests module
+
+*Updated a checking token method in PushBullet
+
 ### Version 2.0.0(Beta) - 2016-07-01 - Marutpong Chailangka
 * Updated html rendering from PHP to python (Tornado) except filemanager
 * Updated serving PHP by itself standalone (port 8889) instead of using Apache
@@ -9,7 +23,7 @@
   * wifi connecting
   * configuration 
   * add-ons functions
-* Added GogoD Addons Interface (both Python module and WS at http://{ip}:8888/ws_interface), sending and receiving the key-value packets between GoGo Board and Raspberry Pi
+* Added GoGoD Addons Interface (both Python module and WS at http://{ip}:8888/ws_interface), sending and receiving the key-value packets between GoGo Board and Raspberry Pi
 * Updated data logging : logging to csv file by default and removed other dependencies (such as orientDB)
 * Updated wireless : supported enable/disable auto connecting
 

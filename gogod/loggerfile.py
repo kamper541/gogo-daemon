@@ -7,6 +7,7 @@ import datetime
 import subprocess
 from os import walk
 import re
+import ast
 
 class dataLogger():
 
@@ -27,16 +28,48 @@ class dataLogger():
         #return file_list
         #file_list = [ re.sub('\.csv$', '', e) for e in file_list]
         file_list = [self.trim_right(e,".csv") for e in file_list]
+        file_list.remove('logging_queue.txt')
+
         return file_list
 
-    def fetch_file(self, file_name):
-        full_name = os.path.join(self.log_path, file_name)
+    def fetch_file(self, file_name, filetype=None):
+        name = file_name.strip('.json')
+        full_name = os.path.join(self.log_path, name)
         full_name = "%s.csv" % (full_name)
         if not os.path.isfile(full_name):
             print "Data Log\t not found %s" % full_name
             return None
         else:
-            return open(full_name, "rb").read()
+            raw = open(full_name, "rb").read()
+            if (filetype == 'json'):
+                data_list = []
+                lines = raw.splitlines(True)
+                for line in lines:
+                    record = self.validate_line(line, name)
+                    if record is not None:
+                        data_list.append(record)
+                return data_list
+            return raw
+
+    def validate_line(self, line, name):
+
+        line = line.strip().split(',')
+        if len(line) == 2:
+            dict = {}
+            dict['created_at'] = line[0]
+            try:
+                #convert string to float or int
+                dict[name] = ast.literal_eval(line[1])
+                return dict
+            except:
+                return None
+        return None
+
+    def validate_number(self, number):
+        try:
+            return ast.literal_eval(number)
+        except:
+            return None
 
     def delete_files(self, file_name):
         

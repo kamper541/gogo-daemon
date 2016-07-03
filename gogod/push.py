@@ -83,8 +83,9 @@ class PushBullet(threading.Thread):
         # self.token = "m3b2ydsSGqkq9meRZAgbKoE0PmSXQqAB"
         
         self.getToken()
-        
-        self.fetch_pushes()
+
+        if self.is_valid_token(self.token):
+            self.fetch_pushes()
         
         global flag_run
         if ((flag_run == False) and (self.token is not None)):
@@ -136,12 +137,17 @@ class PushBullet(threading.Thread):
             self.ws.close()
             self.stop()
 
-        if ((self.token is None) and (len(token)==34)):
+        if ((self.token != token) and self.is_valid_token(token) ):
             self.token = token
             print "PushBullet \t: Changed token"
 
-        elif(self.token is None):
+        elif((self.token != token) and self.token is not None and not self.is_valid_token(token)):
             print "PushBullet \t: Invalid token file"
+
+    def is_valid_token(self, token=None):
+        if token is None:
+            return False
+        return (len(token)==34)
 
     def fetch_pushes(self, timestamp=1429750800):
         request = urllib2.Request("https://api.pushbullet.com/v2/pushes?modified_after=%s" % timestamp)
