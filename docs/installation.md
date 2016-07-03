@@ -12,8 +12,10 @@ $ sudo apt-get install gogod_2_0_0.deb
 ```
 
 > **Note:** if you got a problem like this
+> ![enter image description here](https://git.learninginventions.org/gogo/gogod/raw/master/docs/images/installation/install_error.png)
 
-then
+then run a command to complete the installation
+
 ```bash
 $ sudo apt-get install -f
 ```
