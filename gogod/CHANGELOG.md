@@ -1,5 +1,13 @@
 # Changelog
 
+### Version 2.0.0 - 2016-07-05 - Marutpong Chailangka
+* Added support send topic/message from GoGoBoard to Raspberry Pi
+* Updated add-ons functions
+ * Added functions to get/save variables from/to a file
+ * Added a function to correct filename (remove special characters)
+ * Added a function to run activated add-ons automatically
+ * Changed add-ons filename to example.py
+
 ### Version 2.0.0(Beta 2) - 2016-07-04 - Marutpong Chailangka
 * Added configuration of logging
 * Add-ons

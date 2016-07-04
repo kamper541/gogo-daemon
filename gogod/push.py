@@ -45,7 +45,7 @@ class BackgroundCheck(object):
 
     def run(self):
         """ Method that runs forever """
-        print "PushBullet \t: background start"
+        print "PushBullet \t: background started"
         while True:
             # Do something
             # print('Status : ' + self.status)

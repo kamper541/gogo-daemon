@@ -1,10 +1,7 @@
-import base64
 import os, signal, subprocess
-from os import walk
 import sys
-import json
 import config
-import time
+import re
 from easyprocess import EasyProcess
 
 APPLICATION_PATH = os.path.abspath(os.path.dirname(sys.argv[0]))
@@ -22,7 +19,8 @@ class AddOnsManager():
         print LOG_TITLE + "init"
         self.conf = config.Config() if gogod_config is None else gogod_config
         self.running_list = {}
-        self.reserved_name = ['__init__.py','checker.py','gogod_interface.py','default.py']
+        self.reserved_name = ['__init__.py','checker.py','gogod_interface.py','example.py']
+        self.autorun()
 
     def list_files(self):
 
@@ -34,7 +32,7 @@ class AddOnsManager():
                 # print LOG_TITLE+'found %s' % (module_name)
                 # module = __import__(module_name)
                 library_list.append("%s%s" % (module_name, ext))
-        return list(set(library_list) - ( set(self.reserved_name) - set(['default.py']) ) )
+        return list(set(library_list) - ( set(self.reserved_name) - set(['example.py']) ) )
 
     def load_config(self):
 
@@ -54,6 +52,14 @@ class AddOnsManager():
         # get avlid config again
         return self.conf.get_addons()
 
+    def autorun(self):
+        config_list = self.load_config()
+
+        for filename in config_list:
+            if config_list[filename]['verify'] and config_list[filename]['active']:
+                self.start_addons(filename)
+
+
     def rest_setting(self, arguments):
         result = {'result': False}
 
@@ -72,9 +78,8 @@ class AddOnsManager():
         return result
 
     def testrun(self, command, timeout=0.5):
-
         result = {'result': False}
-        pro = EasyProcess(command).call(timeout=timeout)
+        pro = EasyProcess(command.split()).call(timeout=timeout)
         if pro.return_code > 0:
             result['error'] = pro.stderr
         else:
@@ -99,7 +104,7 @@ class AddOnsManager():
             return file_verify
 
         full_filepath = os.path.join(ADDONS_PATH, filename)
-        cmd = "python %s" % full_filepath
+        cmd = 'python %s' % full_filepath
         result_testrun = self.testrun(cmd)
 
         # Verify the file
@@ -107,7 +112,6 @@ class AddOnsManager():
             return result_testrun
 
         pro = subprocess.Popen(cmd.split(), stdout=subprocess.PIPE, shell=False, preexec_fn=os.setsid)
-        # pro = subprocess.Popen(cmd.split(), stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         # out, err = pro.communicate()
         # result['message'] = out
         # result['error'] = err
@@ -140,22 +144,27 @@ class AddOnsManager():
 
     def verify(self, filename):
         filename = os.path.join(ADDONS_PATH, filename)
-        print filename
         if not os.path.exists(filename):
             return {'result': False, 'error': 'No file exist.'}
 
-        cmd = "python -m py_compile %s" % filename
-
+        cmd = r'python -m py_compile %s' % filename
+        print cmd
+        # p = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         p = subprocess.Popen(cmd.split(), stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         out, err = p.communicate()
         # print err
         return {'result': err == "", 'error': err}
 
+    def corect_filename(self, name):
+        name = re.sub('[^a-zA-Z0-9 \n\.]', '', name)
+        return name.replace(" ", "_")
+
     def upload_file(self, params):
 
         result = {'result': False}
         confirm = params['confirm'] == 'true'
-        filename = params['file']['filename']
+        filename = self.corect_filename(params['file']['filename'])
+
         full_file_path = os.path.join(ADDONS_PATH, filename)
         print LOG_TITLE + 'file named %s' % filename
 

@@ -438,6 +438,13 @@ class GogoD():
                     self.broadcast_websocket("say," + phrase)
                     self.text2speech.say(phrase)
 
+            elif cmd[1] == const.RPI_SEND_MESSAGE:
+                arg = ''.join(chr(i) for i in cmd[2:]).split(',')
+                topic = arg[0]
+                message = arg[1]
+                print "MESSAGE : %s, %s" % (topic, message)
+                self.broadcast_to_interface(topic, message)
+
         # send the updated TX_BUFFER to the gogo board
         # this transmission needs to be at the end of the loop
         # so that any commands that have modified the buffer
@@ -808,17 +815,41 @@ class WWWIndexHandler(tornado.web.RequestHandler):
 
 ws_addons_clients = []  # a dict that tracks the ws connections
 
+# class WSHandler(tornado.websocket.WebSocketHandler):
+#     def check_origin(self, origin):
+#         return True
+
+#     def open(self):
+#         print 'new image ws connection'
+#         ws_clients.append(self)
+
+#     def on_message(self, message):
+#         print 'image-ws message received %s' % message
+
+#         message = message.split(',')
+#         if message[0] == "tapped":
+#             print "Tap event detected"
+#             gogod.setTapEvent(message[1], message[2])  # send x,y pos as paremeters
+#         elif message[0] == "keyvalue":
+#             print "Key Value event detected"
+#             gogod.setKeyValueEvent(message[1], message[2])  # send key,value as paremeters
+
+#     def on_close(self):
+#         print 'connection closed'
+#         ws_clients.remove(self)
+
 
 class WSAddonsInterfaceHandler(tornado.websocket.WebSocketHandler):
+    def check_origin(self, origin):
+        return True
+
     def open(self):
         print 'Addons Interface\tNew Connection'
         ws_addons_clients.append(self)
 
     def on_message(self, message):
-        print 'Addons Interface\t message received %s' % message
-
+        print 'Addons Interface\treceived %s' % message
         message = message.split(',')
-        print message
         if len(message) == 1:
             gogod.setKeyValueEvent(message[0], '')
         elif len(message) > 1:

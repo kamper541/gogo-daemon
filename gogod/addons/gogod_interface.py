@@ -5,12 +5,17 @@ import thread
 import threading
 import time
 import websocket
+import os
+import sys
+import json
 
 # Enable logging
-logging.basicConfig(
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
-    level=logging.CRITICAL)
+# logging.basicConfig(
+#     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+#     level=logging.CRITICAL)
 
+APPLICATION_PATH    = os.path.abspath(os.path.dirname(sys.argv[0]))
+VARIABLE_FILE       = os.path.join(APPLICATION_PATH, "addons_variables.json")
 
 class GogodInterfacce(threading.Thread):
     def __init__(self, on_inter_message, addons_handler):
@@ -29,7 +34,7 @@ class GogodInterfacce(threading.Thread):
         self.connect()
 
     def connect(self):
-        websocket.enableTrace(True)
+        websocket.enableTrace(False)
         self.ws = websocket.WebSocketApp("ws://localhost:8888/ws_interface",
                                          on_message=self.on_message,
                                          on_error=self.on_error,
@@ -39,7 +44,8 @@ class GogodInterfacce(threading.Thread):
         self.ws.run_forever()
 
     def send(self, key='', value=''):
-        self.ws.send("%s,%s" % (key, value))
+        if self.ws and self.ws.keep_running:
+            self.ws.send("%s,%s" % (key, value))
 
     def on_message(self, ws, message):
         print "Gogod Interface \t: msg -> %s" % message
@@ -49,22 +55,13 @@ class GogodInterfacce(threading.Thread):
         except:
             print "Gogod Interface \t: msg error"
 
-        '''
-        print "PushBullet \t: msg - >" + message
-        message = json.loads(message)
-        if (message['type'] == "tickle"):
-            self.fetch_pushes(self.last_timestamp)
-        self.getToken() #For check change token
-        '''
-
     def on_error(self, ws, error):
         print "Gogod Interface \t: Error"
         # print error
 
     def on_close(self, ws):
         print "Gogod Interface \t: Closed"
-        time.sleep(1)
-        self.run()
+        self.ws = None
 
     # def on_open(self, ws):
     #     print "Gogod Interfacce \t: Connected"
@@ -78,6 +75,36 @@ class GogodInterfacce(threading.Thread):
             print "Gogod Interface \t: terminating..."
         thread.start_new_thread(run, ())
 
+    def save_variable(self, name=None, value=None):
+        data = {}
+        try:
+            jsonFile = open(VARIABLE_FILE, "r")
+            data = json.load(jsonFile)
+            jsonFile.close()
+        except:
+            pass
+
+        if name is not None:
+            data[name] = value
+
+        jsonFile = open(VARIABLE_FILE, "w+")
+        jsonFile.write(json.dumps(data))
+        jsonFile.close()
+        print "Gogod Interface \t: Saved"
+
+    def get_variable(self, name=''):
+        data = {}
+        try:
+            jsonFile = open(VARIABLE_FILE, "r")
+            data = json.load(jsonFile)
+            jsonFile.close()
+        except:
+            pass
+
+        if name in data:
+            return data[name]
+        return None
+
 
 if __name__ == "__main__":
     def on_message(title, message):
@@ -89,8 +116,7 @@ if __name__ == "__main__":
         while True:
             time.sleep(5)
             print count
-            app.send('count,%s' % count)
+            app.send('count', count)
             count += 1
-
 
     app = GogodInterfacce(on_message, main)

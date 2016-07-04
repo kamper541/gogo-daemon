@@ -60,6 +60,7 @@ class Config():
         if os.path.exists(CONFIG_FILE):
             jsonFile = open(CONFIG_FILE, "r")
             data = json.load(jsonFile)
+            jsonFile.close()
             data[self.autoconnect_wifi] = self.is_true(data[self.autoconnect_wifi])
             data[self.enable_log_file] = self.is_true(data[self.enable_log_file])
             data[self.enable_log_cloud] = self.is_true(data[self.enable_log_cloud])

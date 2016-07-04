@@ -71,6 +71,9 @@ RPI_WRITE_RFID          = 231
 RPI_RFID_TAG_FOUND      = 232
 RPI_RFID_READER_FOUND   = 233
 RPI_SAY                 = 234
+
+RPI_SEND_MESSAGE        = 239
+
 RPI_SET_TX_BUFFER       = 20
 
 #Packet type On Envent
