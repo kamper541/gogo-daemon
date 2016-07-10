@@ -6,20 +6,9 @@ Installation
 **Install by Package**
 
 ```bash
-$ sudo apt-get update
-$ wget https://git.learninginventions.org/gogo/gogod/raw/master/package/gogod_2.0.0-14.deb
-$ sudo dpkg -i gogod_2.0.0-14.deb
+$ curl -s https://git.learninginventions.org/gogo/gogod/raw/master/gogod_install.sh | sudo sh
 ```
 
-> **Note:** if you got a problem like this
-> 
-> ![enter image description here](https://git.learninginventions.org/gogo/gogod/raw/master/docs/images/installation/install_error.png)
-
-then run a command to complete the installation
-
-```bash
-$ sudo apt-get install -f
-```
 
 **Install by Image File**
 
