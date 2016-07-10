@@ -4,7 +4,8 @@
 		<title>Pi Display</title>
 		<!--<link rel="stylesheet" href="fullscreen.css">
 		-->
-		<script src="http://{{ws_ip}}:8888/www/hub/reconnecting-websocket.min.js"></script>
+		<script src="/www/hub/reconnecting-websocket.min.js"></script>
+		<script src="/www/hub/responsivevoice.js"></script>
 		<script type="text/javascript"> 
 	
 		var firstclick = false;
@@ -29,7 +30,15 @@
 		  }
 
 		}
-		
+
+		var config = {
+    		voice : '{{config_data['settings']['display_speak_voice'] or "US English Female" }}'
+    		, pitch : '{{config_data['settings']['display_speak_pitch'] or 1 }}'
+    		, rate : '{{config_data['settings']['display_speak_rate'] or 1 }}'
+    	}
+
+    	config.pitch 	= parseFloat(config.pitch) || 1;
+    	config.rate 	= parseFloat(config.rate) || 1;
 
 		
 		var ws = new ReconnectingWebSocket("ws://{{ws_ip}}:8888/ws");
@@ -60,8 +69,10 @@
 				aud.play()
 			} else if (cmd[0] == "say"){
 				console.log("saying :  "+cmd[1]);
-				var msg = new SpeechSynthesisUtterance(cmd[1]);
-				window.speechSynthesis.speak(msg);
+				//var msg = new SpeechSynthesisUtterance(cmd[1]);
+				//window.speechSynthesis.speak(msg);
+
+				responsiveVoice.speak(cmd[1], config.voice, config);
 			}
         };
 
@@ -96,7 +107,7 @@
 		
 	</head>
 <body>
-  <img alt="full screen background image" src="/media/{{current_image}}" onclick="sendFeedback()" id="bgimage" /> 
+  <img alt="full screen background image" src="/media/{{current_image}}" onclick="sendFeedback()" id="bgimage" />
   <audio src="/media/mute.mp3" id="sound"/></audio>
 </body>
 </html>

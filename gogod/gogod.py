@@ -22,6 +22,7 @@ import sms
 import rfid
 import text2speech
 import urllib2
+import urllib, mimetypes
 import push
 import config
 import subprocess
@@ -30,14 +31,16 @@ import json, string
 from addons import Addons
 import addons_function
 import webui_function
+import ifttt
+import consolelog
 
 # logging.basicConfig(
 #         format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
 #         level=logging.CRITICAL)
-APPLICATION_PATH = os.path.abspath(os.path.dirname(sys.argv[0]))
-WWW_PATH = os.path.join(APPLICATION_PATH, "www")
-MEDIA_PATH = os.path.join(APPLICATION_PATH, "www", "media")
-
+APPLICATION_PATH    = os.path.abspath(os.path.dirname(sys.argv[0]))
+WWW_PATH            = os.path.join(APPLICATION_PATH, "www")
+MEDIA_PATH          = os.path.join(APPLICATION_PATH, "www", "media")
+LOG_TITLE           = "Gogod"
 
 class GogoD():
     def __init__(self):
@@ -49,10 +52,10 @@ class GogoD():
         self.TX_BUFFER = [0] * const.TX_REGISTER_SIZE
         self.TX_BUFFER[const.REG_PACKET_TYPE] = 2  # this is the packet type ID
 
-        print "Application Path = %s" % APPLICATION_PATH
+        consolelog.log(LOG_TITLE, "Application Path = %s" % APPLICATION_PATH)
 
-        print "Serial monitor started"
         self.ser = serial.Serial('/dev/ttyAMA0', 115200, timeout=0)
+        consolelog.log(LOG_TITLE, "Serial monitor started")
 
         self.pistat = pistat.PiStats()
         self.camera = camera.CameraControl()
@@ -66,7 +69,8 @@ class GogoD():
         self.background_push = push.BackgroundCheck(self.setKeyValueEvent)
         self.text2speech = text2speech.TextToSpeech()
         self.webUIfunc = webui_function.WebUIFunction()
-        self.addons_mng = addons_function.AddOnsManager()
+        self.addons_mng = addons_function.AddOnsManager(self.conf)
+        self.ifttt = ifttt.IftttTrigger(self.conf)
 
         # Addons
         self.addons_thread = Addons(APPLICATION_PATH, self.setKeyValueEvent)
@@ -123,8 +127,7 @@ class GogoD():
         self.TX_BUFFER[const.REG_RFID_TAG_CONTENT] = value
 
     def setTapEvent(self, xpos, ypos):
-
-        print "Tap event at (%s, %s)" % (xpos, ypos)
+        consolelog.log("Pi Display", "Tap event at (%s, %s)" % (xpos, ypos))
         xpos = int(xpos)
         ypos = int(ypos)
 
@@ -146,7 +149,7 @@ class GogoD():
         value = value.strip()
         parameter = key + "," + value
         parameter = parameter.lower()
-        print "Event key,vale  = '%s'" % (parameter)
+        consolelog.log(LOG_TITLE, "key,vale  = '%s'" % (parameter))
         event_array = [ord(c) for c in parameter]
 
         if value != "":
@@ -174,7 +177,7 @@ class GogoD():
         if self.camera.find_face_is_on():
             if self.camera.face_found():
                 self.TX_BUFFER[const.REG_CAMERA_FLAGS] |= 1 << 2
-                print "Found a face"
+                consolelog.log(LOG_TITLE, "Found a face")
 
         # =============================================
         # update Raspberry Pi revision
@@ -238,7 +241,7 @@ class GogoD():
                 break
 
             if len(text_cmd) < 2:
-                print "cmd is too short"
+                consolelog.log(LOG_TITLE, "cmd is too short")
                 break
 
             if ord(text_cmd[0]) != 5:
@@ -252,38 +255,38 @@ class GogoD():
             if cmd[1] == const.USE_CAMERA:
                 self.camera.use_camera()
                 if self.camera.camera_is_on():
-                    print "Camera is on"
+                    consolelog.log(LOG_TITLE, "Camera is on")
                 else:
-                    print "Camera cannot be turned on"
+                    consolelog.log(LOG_TITLE, "Camera cannot be turned on")
 
             elif cmd[1] == const.CLOSE_CAMERA:
                 self.camera.close_camera()
                 if not self.camera.camera_is_on():
-                    print "Camera is off"
+                    consolelog.log(LOG_TITLE, "Camera is off")
                 else:
-                    print "Cannot turn off camera"
+                    consolelog.log(LOG_TITLE, "Cannot turn off camera")
 
             elif cmd[1] == const.START_FIND_FACE:
                 self.camera.start_find_face()
                 if self.camera.find_face_is_on():
-                    print "Find Face is ON"
+                    consolelog.log(LOG_TITLE, "Find Face is ON")
                 else:
-                    print "Cannot start Find Face"
+                    consolelog.log(LOG_TITLE, "Cannot start Find Face")
 
             elif cmd[1] == const.STOP_FIND_FACE:
                 self.camera.stop_find_face()
                 if not self.camera.find_face_is_on():
-                    print "Find Face is OFF"
+                    consolelog.log(LOG_TITLE, "Find Face is OFF")
                 else:
-                    print "Cannot turn off find face"
+                    consolelog.log(LOG_TITLE, "Cannot turn off find face")
 
             elif cmd[1] == const.TAKE_SNAP_SHOT:
                 self.camera.take_snapshot()
-                print "Snap shot taken"
+                consolelog.log(LOG_TITLE, "Snap shot taken")
 
             elif cmd[1] == const.TAKE_PREVIEW_IMAGE:
                 self.camera.take_preview_image()
-                print "preview shot taken"
+                consolelog.log(LOG_TITLE, "preview shot taken")
 
             elif cmd[1] == const.SEND_MAIL:
                 arg = ''.join(chr(i) for i in cmd[2:]).split(',')
@@ -291,7 +294,7 @@ class GogoD():
                 param.recipient = arg[0]
                 param.subject = arg[1]
                 param.body = arg[2]
-                print "Email : send to %s" % (param.recipient)
+                consolelog.log("Email", "send to %s" % (param.recipient))
                 mail.send(self.mail_status_callback, param)
 
             elif cmd[1] == const.PLAY_SOUND:
@@ -299,31 +302,31 @@ class GogoD():
                 file_name = cmd[2:]
                 # convert list of ascii values to string
                 file_name = ''.join(chr(i) for i in file_name)
-                listsoundfiletype = ['mp3', 'ogg']
+                listsoundfiletype = ['mp3', 'ogg', 'wav', 'wave']
                 listsoundfiletypedirectory = ['audio/mpeg', 'audio/ogg']
                 for index, type in enumerate(listsoundfiletype):
                     file_name_check = file_name + "." + type
                     if os.path.exists(os.path.join(MEDIA_PATH, file_name_check)):
                         file_name = file_name_check
                         break
-                    elif os.path.exists(os.path.join(MEDIA_PATH, recordings, file_name_check)):
+                    elif os.path.exists(os.path.join(MEDIA_PATH, "recordings", file_name_check)):
                         file_name = file_name_check
                         break
-                print "Play sound %s" % file_name
+                consolelog.log(LOG_TITLE, "Play sound %s" % file_name)
                 self.broadcast_websocket("play_sound," + file_name)
                 if os.path.exists(os.path.join(MEDIA_PATH, file_name)):
                     audio.play_sound(os.path.join(MEDIA_PATH, file_name))
                 else:
-                    audio.play_sound(os.path.join(MEDIA_PATH, recordings, file_name_check))
+                    audio.play_sound(os.path.join(MEDIA_PATH, "recordings", file_name_check))
 
             elif cmd[1] == const.STOP_SOUND:
-                print "Stop sound"
+                consolelog.log(LOG_TITLE, "Stop sound")
                 audio.stop_sound()
 
             elif cmd[1] == const.SHOW_IMAGE:
                 image_filename = ''.join(chr(i) for i in cmd[2:])
-                print "show image %s" % image_filename
-                listimagefiletype = ['png', 'jpg', 'jpeg', 'bmp', 'PNG']
+                consolelog.log(LOG_TITLE, "show image %s" % image_filename)
+                listimagefiletype = ['png', 'jpg', 'jpeg', 'bmp', 'PNG','gif','GIF']
                 for type in listimagefiletype:
                     image_filename2 = image_filename + "." + type
                     if os.path.exists(os.path.join(MEDIA_PATH, image_filename2)):
@@ -348,7 +351,7 @@ class GogoD():
                 wireless.disconnect(self.wifi_status_callback)
 
             elif cmd[1] == const.EMAIL_CONFIG:
-                print "Email : Start Config"
+                consolelog.log("Email", "Start Config")
                 arg = ''.join(chr(i) for i in cmd[2:]).split(',')
                 param = EmailParam()
                 param.username = arg[0]
@@ -361,32 +364,32 @@ class GogoD():
                 param.recipient = arg[0]
                 param.subject = arg[1]
                 param.body = arg[2]
-                print "Email : send to %s" % (param.recipient)
+                consolelog.log("Email", "send to %s" % (param.recipient))
                 mail.send(self.mail_status_callback, param)
 
             elif cmd[1] == const.SEND_SMS:
                 arg = ''.join(chr(i) for i in cmd[2:]).split(',')
                 sms_number = arg[0]
                 sms_message = arg[1]
-                print "SMS : send to %s" % (sms_number)
+                consolelog.log("SMS", "send to %s" % (sms_number))
                 sms.send(self.sms_status_callback, sms_number, sms_message)
                 #self.broadcast_to_interface(sms_number, sms_message)
 
             elif cmd[1] == const.RPI_REBOOT:
-                print "Reboot"
+                consolelog.log(LOG_TITLE, "Reboot")
                 rpi_system.rpi_reboot()
 
             elif cmd[1] == const.RPI_SHUTDOWN:
-                print "Shutdown"
+                consolelog.log(LOG_TITLE, "Shutdown")
                 rpi_system.rpi_shutdown()
 
             elif cmd[1] == const.RPI_SET_TX_BUFFER:
-                print "setting tx buffer[%d] to %d " % (cmd[2], cmd[3])
+                consolelog.log(LOG_TITLE, "setting tx buffer[%d] to %d " % (cmd[2], cmd[3]))
                 self.TX_BUFFER[cmd[2]] = cmd[3]
 
             elif cmd[1] == const.RPI_NEWRECORDFILE:
                 file_name = ''.join(chr(i) for i in cmd[2:])
-                print "Logging : creating new log file for %s" % file_name
+                consolelog.log("Logging", "creating new log file for %s" % file_name)
                 self.data_logger.new_log_file(file_name)
                 # new
                 #loggerdb.truncate(file_name)
@@ -413,18 +416,18 @@ class GogoD():
             elif cmd[1] == const.RPI_SHOW_LOG_PLOT:
                 file_names, n = text_cmd[2:].split(';')  # n = number of latest points to show
                 n = (ord(n[0]) << 8) + (ord(n[1]))  # high byte + low byte
-
-                print "Plotting %d latest points for %s" % (n, file_names)
+                consolelog.log(LOG_TITLE, "Plotting %d latest points for %s" % (n, file_names))
                 self.data_logger.plot(n, file_names)
 
                 self.broadcast_websocket("set_image," + "plot.png")
 
             elif cmd[1] == const.RPI_USE_RFID:
-                print "RFID : Use RFID"
+
+                consolelog.log("RFID", " Use RFID")
                 rfid.useRFID(self.rfid_status_callback, self.rfid_read_tag_callback)
 
             elif cmd[1] == const.RPI_CLOSE_RFID:
-                print "RFID : Use RFID"
+                consolelog.log("RFID", "Close RFID")
                 rfid.closeRFID()
             elif cmd[1] == const.RPI_RFID_BEEP:
                 rfid.beep()
@@ -442,8 +445,12 @@ class GogoD():
                 arg = ''.join(chr(i) for i in cmd[2:]).split(',')
                 topic = arg[0]
                 message = arg[1]
-                print "MESSAGE : %s, %s" % (topic, message)
-                self.broadcast_to_interface(topic, message)
+
+                consolelog.log("Message", "%s, %s" % (topic, message))
+                if topic == "@ifttt":
+                    self.ifttt.trigger(arg)
+                else:
+                    self.broadcast_to_interface(topic, message)
 
         # send the updated TX_BUFFER to the gogo board
         # this transmission needs to be at the end of the loop
@@ -557,18 +564,17 @@ class WSHandler(tornado.websocket.WebSocketHandler):
         return True
 
     def open(self):
-        print 'new image ws connection'
+        consolelog.log("WS", "new connection")
         ws_clients.append(self)
 
     def on_message(self, message):
-        print 'image-ws message received %s' % message
-
+        consolelog.log("WS", "message received %s" % message)
         message = message.split(',')
         if message[0] == "tapped":
-            print "Tap event detected"
+            consolelog.log("WS", "Tap event detected")
             gogod.setTapEvent(message[1], message[2])  # send x,y pos as paremeters
         elif message[0] == "keyvalue":
-            print "Key Value event detected"
+            consolelog.log("WS", "Key Value event detected")
             gogod.setKeyValueEvent(message[1], message[2])  # send key,value as paremeters
             # if "pet_idle.png" in message:
             #     self.write_message("pet_smile.png")
@@ -576,7 +582,7 @@ class WSHandler(tornado.websocket.WebSocketHandler):
             #     self.write_message("pet_idle.png")
 
     def on_close(self):
-        print 'connection closed'
+        consolelog.log("WS", "connection closed")
         ws_clients.remove(self)
 
 
@@ -597,7 +603,7 @@ class Userform(tornado.web.RequestHandler):
 class Upload(tornado.web.RequestHandler):
     def post(self):
         fileinfo = self.request.files['filearg'][0]
-        print "fileinfo is", fileinfo
+        # print "fileinfo is", fileinfo
         fname = fileinfo['filename']
         extn = os.path.splitext(fname)[1]
         cname = str(uuid.uuid4()) + extn
@@ -608,7 +614,7 @@ class Upload(tornado.web.RequestHandler):
 
 class ScreenHandler(tornado.web.RequestHandler):
     def get(self):
-        print "screen handler started"
+        consolelog.log("Pi Display", "screen handler started")
         ip_list = ip.get_ip_list('eth0')
         if ip_list is None:
             ip_list = ip.get_ip_list('wlan0')
@@ -618,30 +624,42 @@ class ScreenHandler(tornado.web.RequestHandler):
 
         # ip_string = "%s.%s.%s.%s" % (str(ip_list[0]), str(ip_list[1]), str(ip_list[2]), str(ip_list[3]))
         ip_string = ".".join(map(str, ip_list))
-        print "IP sent to ws client = %s" % ip_string
-        self.render("media_template.html", ws_ip=ip_string, current_image=gogod.current_show_image)
+        config_data = {'settings' : gogod.conf.get_except_credential()}
+        consolelog.log("Pi Display", "IP sent to ws client = %s" % ip_string)
+        self.render("media_template.html", ws_ip=ip_string, current_image=gogod.current_show_image, config_data=config_data)
 
 
 class MediaHandler(tornado.web.RequestHandler):
     def get(self, file_name, file_type):
-        print "Filename = %s, File Type = %s" % (file_name, file_type)
-        if file_type.lower() == 'png':
-            self.set_header("Content-type", "image/png")
-        elif file_type.lower() == 'jpg':
-            self.set_header("Content-type", "image/jpg")
-        elif file_type.lower() == 'mp3':
-            self.set_header("Content-type", "audio/mpeg")
-        elif file_type.lower() == 'ogg':
-            self.set_header("Content-type", "audio/ogg")
+        consolelog.log("Media", "Filename = %s, File Type = %s" % (file_name, file_type))
+        # if file_type.lower() == 'png':
+        #     self.set_header("Content-type", "image/png")
+        # elif file_type.lower() == 'jpg':
+        #     self.set_header("Content-type", "image/jpg")
+        # elif file_type.lower() == 'gif':
+        #     self.set_header("Content-type", "image/gif")
+        # elif file_type.lower() == 'mp3':
+        #     self.set_header("Content-type", "audio/mpeg")
+        # elif file_type.lower() == 'ogg':
+        #     self.set_header("Content-type", "audio/ogg")
+        # elif file_type.lower() == 'wav':
+        #     self.set_header("Content-type", "audio/wav")
+        #
+        # else:
+        #     print "Error: unknown media type %s" % file_type
+        #     return
 
+        full_file_name = os.path.join(MEDIA_PATH, "%s.%s" % (file_name, file_type))
+        if os.path.exists(full_file_name):
+            self.set_header("Content-type", self.getMIME(full_file_name))
+            self.write(open(full_file_name, "rb").read())
         else:
-            print "Error: unknown media type %s" % file_type
+            consolelog.log(LOG_TITLE, "Error: no file named %s" % file_name)
             return
 
-        if os.path.exists(os.path.join(MEDIA_PATH, "%s.%s" % (file_name, file_type))):
-            self.write(open(os.path.join(MEDIA_PATH, "%s.%s" % (file_name, file_type)), "rb").read())
-        else:
-            self.write(open(os.path.join(MEDIA_PATH, "recordings", "%s.%s" % (file_name, file_type)), "rb").read())
+    def getMIME(self, full_file_name):
+        url = urllib.pathname2url(full_file_name)
+        return mimetypes.guess_type(url)[0]
 
 
 class RestAPIHandler(tornado.web.RequestHandler):
@@ -740,7 +758,7 @@ class RestAPI3URLHandler(tornado.web.RequestHandler):
 class WWWhtmlHandler(tornado.web.RequestHandler):
     def get(self, uri=None):
         config_data = self.feth_config()
-        print "URI GET \t %s" % (uri)
+        consolelog.log("URI GET", "%s" % (uri))
 
         if uri is None:
             uri = "index"
@@ -764,18 +782,16 @@ class WWWhtmlHandler(tornado.web.RequestHandler):
             self.redirect('/www/webui/index.html')
 
         elif uri == "setting":
-            config_data['settings'] = gogod.conf.get_not_credential()
+            config_data['settings'] = gogod.conf.get_except_credential()
 
         self.render("%s/%s.html" % (WWW_PATH, uri), config_data=config_data, arguments=self.request.arguments)
 
     def post(self, uri=None):
-        print "URI POST \t %s" % (uri)
+        consolelog.log("URI POST", "%s" % (uri))
 
         if uri == "rapid_interface_builder/rib_upload":
             result = gogod.webUIfunc.uploadHTML(self.request.arguments)
             self.write(result)
-        elif uri == "":
-            print "ok"
 
     def feth_config(self):
         CONFIG_FILE = os.path.join(WWW_PATH, "config.json")
@@ -792,11 +808,6 @@ class WWWhtmlHandler(tornado.web.RequestHandler):
 
 class WWWHandler(tornado.web.RequestHandler):
     def get(self, file_name=None):
-        print "Filename = %s" % (file_name)
-        print file_name.endswith("/")
-        # proc = subprocess.Popen("php %s/www/%s" % (APPLICATION_PATH, file_name), shell=True, stdout=subprocess.PIPE)
-        # script_response = proc.stdout.read()
-        # self.write(script_response)
         if file_name is None:
             self.redirect("/")
             return
@@ -844,11 +855,11 @@ class WSAddonsInterfaceHandler(tornado.websocket.WebSocketHandler):
         return True
 
     def open(self):
-        print 'Addons Interface\tNew Connection'
+        consolelog.log("Addons Interface", "New Connection")
         ws_addons_clients.append(self)
 
     def on_message(self, message):
-        print 'Addons Interface\treceived %s' % message
+        consolelog.log("Addons Interface", "received %" % message)
         message = message.split(',')
         if len(message) == 1:
             gogod.setKeyValueEvent(message[0], '')
@@ -856,7 +867,7 @@ class WSAddonsInterfaceHandler(tornado.websocket.WebSocketHandler):
             gogod.setKeyValueEvent(message[0], message[1])
 
     def on_close(self):
-        print 'Addons Interface\tconnection closed'
+        consolelog.log("Addons Interface", "connection closed")
         ws_addons_clients.remove(self)
 
 

@@ -1,5 +1,16 @@
 # Changelog
 
+### Version 2.1.0 beta - 2016-07-11 - Marutpong Chailangka
+* Added IFTTT Trigger
+* Added Pi Display Text-to-Speech Configuration
+ * replaceed speech synthesis engine to ResponsiveVoice JS
+ * supported multi-browser
+ * supported to change voice, pitch and rate
+* Updated more media file types supported (for pi display and file downloading)
+* Added console logging and log by pattern (date title message)
+* Fixed SMS Sending issues
+* Fixed wifi issue
+
 ### Version 2.0.0 - 2016-07-05 - Marutpong Chailangka
 * Added support send topic/message from GoGoBoard to Raspberry Pi
 * Updated add-ons functions

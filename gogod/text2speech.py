@@ -1,7 +1,9 @@
 import urllib, pycurl, os
 import threading
 import time
+import consolelog
 
+LOG_TITLE           = "Text2Speech"
 
 class Google(threading.Thread):
     def __init__(self, phrase):
@@ -44,10 +46,10 @@ class Festival(threading.Thread):
     def run(self):
         self.set_flag(True)
         start = time.time()
-        print "Text2Speech : Saying " + self.phrase
+        consolelog.log(LOG_TITLE, "Saying " + self.phrase)
         os.system("echo \"" + self.phrase + "\" | festival --tts")
         end = time.time() - start
-        print "Text2Speech : End, time used %f s" % end
+        consolelog.log(LOG_TITLE, "time used %f s" % end)
         self.set_flag(False)
 
 
@@ -57,9 +59,9 @@ class Espeak(threading.Thread):
         self.phrase = phrase
 
     def run(self):
-        print "Text2Speech : Saying " + self.phrase
+        consolelog.log(LOG_TITLE, "Saying %s" % self.phrase)
         os.system("espeak -ven+f3 -k5 -s150 \"" + self.phrase + "\"")
-        print "Text2Speech : End"
+        consolelog.log(LOG_TITLE, "End")
 
 
 class TextToSpeech:
@@ -70,12 +72,12 @@ class TextToSpeech:
 
     def set_flag(self, state):
         if self.dubuging:
-            print "Text2Speech : state cahnge to "+str(self.saying_flag)
+            consolelog.log(LOG_TITLE, "state change to %s" % self.saying_flag)
         self.saying_flag = state
 
     def say(self, phrase):
         if self.dubuging:
-            print "Text2Speech : "+str(self.saying_flag)
+            consolelog.log(LOG_TITLE, "%s" % self.saying_flag)
         if not self.saying_flag:
             speech2 = Festival(self.set_flag, phrase)
             speech2.start()

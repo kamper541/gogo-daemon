@@ -22,59 +22,86 @@
         <br>
         <div id="notification"></div>
           <fieldset>
-
-            <legend>Cloud Data</legend>
+            <legend class="text-success">Data Logging</legend>
             <div class="form-group">
-              <label for="inputToken" class="col-lg-2 control-label">API Key</label>
-              <div class="col-lg-10">
+              <label for="input_clouddata_key" class="col-md-2 control-label">Cloud API Key</label>
+              <div class="col-md-10">
                 <input type="text" class="form-control" id="input_clouddata_key" name="input_clouddata_key" placeholder="API Key" minlength="16" maxlength="16">
               </div>
             </div>
-
-            <legend>Pushbullet</legend>
             <div class="form-group">
-              <label for="inputToken" class="col-lg-2 control-label">Token</label>
-              <div class="col-lg-10">
+              <label for="checkbox_enable_log_file" class="col-md-2 control-label">Enable logging to </label>
+              <div class="col-md-10">
+                <div class="togglebutton" style="vertical-align:middle;">
+                    <label>
+                        <input type="checkbox" name="checkbox_enable_log_file"{% if config_data['settings']['enable_log_file'] %} checked="checked" {% end %} >   <span class="toggle"></span> File
+                    </label>
+                    <input type="hidden" name="input_enable_log_file" value="">
+                    <label>
+                        <input type="checkbox" name="checkbox_enable_log_cloud"{% if config_data['settings']['enable_log_cloud'] %} checked="checked" {% end %} >   <span class="toggle"></span> Cloud
+                    </label>
+                    <input type="hidden" name="input_enable_log_cloud" value="">
+                </div>
+              </div>
+            </div>
+
+            <legend class="text-success">IFTTT</legend>
+            <div class="form-group">
+              <label for="input_ifttt_key" class="col-md-2 control-label">Maker Channel Key</label>
+              <div class="col-md-10">
+                <input type="text" class="form-control" id="input_ifttt_key" name="input_ifttt_key" placeholder="Maker Channel Key">
+              </div>
+            </div>
+            <div class="form-group">
+              <label for="input_ifttt_key" class="col-md-2 control-label"></label>
+              <div class="col-md-10">
+                <p class="text-muted">IFTTT Maker Channel Key is at <a href="https://ifttt.com/maker" target="_blank">https://ifttt.com/maker</a>, Look at "Your key is:"</p>
+              </div>
+            </div>
+            <legend class="text-success">Pushbullet</legend>
+            <div class="form-group">
+              <label for="input_pushbullet_token" class="col-md-2 control-label">Token</label>
+              <div class="col-md-10">
                 <input type="text" class="form-control" id="input_pushbullet_token" name="input_pushbullet_token" placeholder="Push Bullet Token" minlength="34" maxlength="34">
               </div>
             </div>
             <div class="form-group">
-              <label for="inputToken" class="col-lg-2 control-label"></label>
-              <div class="col-lg-10">
-                <p class="text-muted">Pushbullet Access Token is at <a href="https://www.pushbullet.com/account" target="_blank">https://www.pushbullet.com/account</a> on section Access Token</p>
+              <label for="input_pushbullet_token" class="col-md-2 control-label"></label>
+              <div class="col-md-10">
+                <p class="text-muted">Pushbullet Access Token is at <a href="https://www.pushbullet.com/account" target="_blank">https://www.pushbullet.com/account</a> on section Access Token, Click the button "Create Access Token"</p>
               </div>
             </div>
 
-            <legend>Gmail</legend>
+            <legend class="text-success">Gmail</legend>
             <div class="form-group">
-              <label for="input_gmail_username" class="col-lg-2 control-label">Gmail Username</label>
-              <div class="col-lg-10">
+              <label for="input_gmail_username" class="col-md-2 control-label">Gmail Username</label>
+              <div class="col-md-10">
                 <input type="email" class="form-control" id="input_gmail_username" name="input_gmail_username" placeholder="Gmail Username">
               </div>
             </div>
             <div class="form-group">
-              <label for="input_gmail_password" class="col-lg-2 control-label">Gmail Password</label>
-              <div class="col-lg-10">
+              <label for="input_gmail_password" class="col-md-2 control-label">Gmail Password</label>
+              <div class="col-md-10">
                 <input type="password" class="form-control" id="input_gmail_password" name="input_gmail_password" placeholder="Gmail Password" >
               </div>
             </div>
 
-            <legend>Wifi Configuation</legend>
+            <legend class="text-success">Wifi Configuration</legend>
             <div class="form-group">
-              <label for="input_wifi_ssid" class="col-lg-2 control-label">Wifi SSID</label>
-              <div class="col-lg-10">
+              <label for="input_wifi_ssid" class="col-md-2 control-label">Wifi SSID</label>
+              <div class="col-md-10">
                 <input type="text" class="form-control" id="input_wifi_ssid" name="input_wifi_ssid" placeholder="Wifi SSID">
               </div>
             </div>
             <div class="form-group">
-              <label for="input_wifi_password" class="col-lg-2 control-label">Wifi Password</label>
-              <div class="col-lg-10">
+              <label for="input_wifi_password" class="col-md-2 control-label">Wifi Password</label>
+              <div class="col-md-10">
                 <input type="password" class="form-control" id="input_wifi_password" name="input_wifi_password" placeholder="Wifi Password" >
               </div>
             </div>
             <div class="form-group">
-              <label for="checkbox_autoconnect_wifi" class="col-lg-2 control-label">Auto Connect</label>
-              <div class="col-lg-10">
+              <label for="checkbox_autoconnect_wifi" class="col-md-2 control-label">Auto Connect</label>
+              <div class="col-md-10">
                 <div class="togglebutton" style="vertical-align:middle;">
                     <label>
                         <input type="checkbox" name="checkbox_autoconnect_wifi"{% if config_data['settings']['autoconnect_wifi'] == True %} checked="checked" {% end %} >   <span class="toggle"></span>
@@ -84,24 +111,40 @@
               <input type="hidden" name="input_autoconnect_wifi" value=""> 
             </div>
 
-            <legend>Logging</legend>
+            <legend class="text-success">Pi Display</legend>
             <div class="form-group">
-              <label for="checkbox_enable" class="col-lg-2 control-label">Enable logging to </label>
-              <div class="col-lg-10">
-                <div class="togglebutton" style="vertical-align:middle;">
-                    <label>
-                        <input type="checkbox" name="checkbox_enable_log_file"{% if config_data['settings']['enable_log_file'] %} checked="checked" {% end %} >   <span class="toggle"></span> File
-                    </label>
-                    <input type="hidden" name="input_enable_log_file" value=""> 
-                    <label>
-                        <input type="checkbox" name="checkbox_enable_log_cloud"{% if config_data['settings']['enable_log_cloud'] %} checked="checked" {% end %} >   <span class="toggle"></span> Cloud
-                    </label>
-                    <input type="hidden" name="input_enable_log_cloud" value=""> 
-                </div>
+              <label for="input_display_speak_voice" class="col-md-2 control-label">Voice</label>
+              <div class="col-md-10">
+                <select class="form-control" id="input_display_speak_voice" name="input_display_speak_voice">
+
+                </select>
               </div>
             </div>
+
+            <div class="row">
+              <div class="col-md-6">
+                <div class="form-group">
+                  <label for="input_display_speak_pitch" class="col-md-4 control-label">Pitch (range 0 to 2)</label>
+                  <div class="col-md-8">
+                    <input type="number" min="0" max="2" step="0.1" class="form-control" id="input_display_speak_pitch" name="input_display_speak_pitch" placeholder="Pitch" value="{{ config_data['settings']['display_speak_pitch'] or 1 }}" >
+                  </div>
+                </div>
+              </div>
+
+              <div class="col-md-6">
+                <div class="form-group">
+                  <label for="input_display_speak_rate" class="col-md-4 control-label">Rate (range 0 to 2)</label>
+                  <div class="col-md-8">
+                    <input type="number" min="0" max="2" step="0.1" class="form-control" id="input_display_speak_rate" name="input_display_speak_rate" placeholder="Rate" value="{{ config_data['settings']['display_speak_rate'] or 1 }}" >
+                  </div>
+                </div>
+              </div>
+
+            </div>
+
+
             <div class="form-group">
-              <div class="col-lg-10 col-lg-offset-2">
+              <div class="col-md-10 col-lg-offset-2">
               <input type="hidden" name="raspberry-pi" value="save">
               <button type="submit" class="btn btn-success">Save</button>
               </div>
@@ -114,13 +157,30 @@
       </div>
     </div>
     </form>
+
   </div>
   <!-- Preloader -->
   <script src="bootstrap-material-design/dist/jquery-1.11.min.js"></script>
   <script src="bootstrap-material-design/dist/js/bootstrap.min.js"></script>
   <script src="bootstrap-material-design/dist/js/material.min.js"></script>
   <script src="bootstrap-material-design/dist/snackbar.min.js"></script>
+  <script src="/www/hub/responsivevoice.js"></script>
   <script type="text/javascript">
+    var voicelist = responsiveVoice.getVoices();
+
+
+    var config = {
+      display_speak_voice : '{{config_data['settings']['display_speak_voice'] or "US English Female" }}'
+    }
+    for (var index in voicelist){
+      console.log(voicelist[index]);
+      var name = voicelist[index]['name'];
+      var option = $('<option value="'+name+'">'+name+'</option>');
+      if (config.display_speak_voice == name){
+         option.attr('selected','selected');
+      }
+      $('#input_display_speak_voice').append(option);
+    }
     $("form").on("submit",function(event){
       event.preventDefault();
       //$.post("save_setting.php",$(this).serialize())

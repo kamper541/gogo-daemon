@@ -4,12 +4,6 @@
 # Name          :  Configuration Reader and Writer and Encryption
 # Description   :
 # Author        :  Marutpong Chailangka
-# Created       :  2015-08-21
-# Updated       :  2015-08-21
-# Updated       :  2015-11-18
-# Updated       :  2015-12-12
-# Updated       :  2016-03-16
-# Updated       :  2016-05-05
 # -------------------------------------------------------------------------------
 
 from Crypto.Cipher import AES
@@ -19,11 +13,13 @@ from os import walk
 import sys
 import json
 import subprocess
+import consolelog
 
 APPLICATION_PATH    = os.path.abspath(os.path.dirname(sys.argv[0]))
 CONFIG_FILE         = os.path.join(APPLICATION_PATH, "raspberry_setting.json")
 HTML_PATH           = os.path.join(APPLICATION_PATH, "www", "media", "html")
 ADDONS_PATH         = os.path.join(APPLICATION_PATH, "addons")
+LOG_TITLE           = "Config"
 
 
 class Config():
@@ -41,18 +37,26 @@ class Config():
         self.enable_log_file    = "enable_log_file"
         self.enable_log_cloud   = "enable_log_cloud"
         self.addons             = "addons"
-        self.current            = self.get_all()
+        self.ifttt_key          = "ifttt_key"
+        self.display_speak_voice    = "display_speak_voice"
+        self.display_speak_pitch    = "display_speak_pitch"
+        self.display_speak_rate     = "display_speak_rate"
 
         self.api_events = ['keyvalue', 'datalog', 'wifi', 'config']
         self.valid_configs = [self.wifi_ssid, self.wifi_password, self.gmail_username, self.gmail_password,
                               self.pushbullet_token, self.clouddata_key, self.autoconnect_wifi, self.enable_log_file,
-                              self.enable_log_cloud, self.addons]
+                              self.enable_log_cloud, self.addons, self.ifttt_key, self.display_speak_voice, self.display_speak_pitch, self.display_speak_rate]
+        self.current = self.get_all()
 
-    def get_not_credential(self):
-        data = self.get_all()
-        return {self.autoconnect_wifi: data[self.autoconnect_wifi]
-                , self.enable_log_file:data[self.enable_log_file]
-                , self.enable_log_cloud: data[self.enable_log_cloud]
+    def get_except_credential(self):
+        #data = self.get_all()
+        data = self.current
+        return {self.autoconnect_wifi   : data[self.autoconnect_wifi]
+            , self.enable_log_file      : data[self.enable_log_file]
+            , self.enable_log_cloud     : data[self.enable_log_cloud]
+            , self.display_speak_voice  : self.get(self.display_speak_voice)
+            , self.display_speak_pitch  : self.get(self.display_speak_pitch)
+            , self.display_speak_rate   : self.get(self.display_speak_rate)
 
                 }
 
@@ -71,9 +75,10 @@ class Config():
         return value in (True, "yes", "True", "true", "t", "1")
 
     def get(self, name):
-        data = self.get_all()
+        #data = self.get_all()
+        data = self.current
         if name in data:
-            if name == self.gmail_password:
+            if name == self.gmail_password and data[name] is not None and len(data[name])>0:
                 return self.enc.DecodeAES(data[name])
             return data[name]
         if name == self.addons:
@@ -117,7 +122,7 @@ class Config():
         # file.write(self.encrypt(self.ENCRYPT_PASSWORD, param.password) + "\n")
         # file.close()
 
-        print("Config : Save configuration Success")
+        consolelog.log(LOG_TITLE, "Saved")
 
         if self.status_callback is not None:
             self.status_callback(10 + self.EmailStatus.SUCCESS)
@@ -200,27 +205,27 @@ class Config():
         return {'result': err == "", 'error': err}
 
     def get_account(self, param):
-        print "Config : Getting email account"
+        consolelog.log(LOG_TITLE, "Getting email account")
         param.username = self.get(self.gmail_username)
         param.password = self.get(self.gmail_password)
         return param
 
     def save_account(self, username, password):
-        print "Config : Saving email account"
+        consolelog.log(LOG_TITLE, "Saving email account")
         self.save_to_file({self.gmail_username: username, self.gmail_password: password})
         return True
 
     def get_autoconnect_wifi(self):
-        # print "Config : Getting autoconnect_wifi"
+        #consolelog.log(LOG_TITLE, "Getting autoconnect_wifi")
         return self.get(self.autoconnect_wifi)
 
     def save_autoconnect_wifi(self, value):
-        print "Config : Saving autoconnect_wifi"
+        consolelog.log(LOG_TITLE, "Saving autoconnect_wifi")
         self.save_to_file({self.autoconnect_wifi: value})
         return True
 
     def save_wifi_config(self, ssid, password):
-        print "Config : Saving wifi config"
+        consolelog.log(LOG_TITLE, "Saving wifi config")
         self.save_to_file({self.wifi_ssid: ssid, self.wifi_password: password})
         return True
 
@@ -235,6 +240,12 @@ class Config():
         if self.get(self.clouddata_key):
             return self.get(self.clouddata_key).strip()
         return None
+
+    def get_iftt_key(self):
+        return self.get(self.ifttt_key)
+
+    def save_iftt_key(self, key):
+        self.save_to_file({self.ifttt_key: key})
 
     def saveClouddataKey(self, key):
         self.save_to_file({self.clouddata_key: key})

@@ -17,6 +17,7 @@ CONTENT_META        = '<meta  name = "viewport" content = "initial-scale = 1.0, 
 
 class WebUIFunction():
     def __init__(self):
+        print
         print "WebUI\t : init"
 
     def list_html_files(self):

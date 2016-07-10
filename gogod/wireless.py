@@ -2,6 +2,7 @@
 #  https://wifi.readthedocs.org
 # Updated       :  2015-09-07
 # Updated       :  2015-10-10
+# Updated       :  2016-07-10
 #-------------------------------------------------------------------------------
 
 
@@ -49,6 +50,12 @@ class connectWifi(threading.Thread):
 
         print "Wifi \t\t: connect thread started"
         print "Wifi \t\t: Connecting to SSID %s with password %s" % (self.SSID, self.PASSWORD)
+
+        try:
+            os.system("ifup wlan0")
+        except:
+            self.status = 5  # 5 = Error
+
         #Checking spacebar
         if ' ' in self.SSID or (self.PASSWORD is not None and ' ' in self.PASSWORD):
             print "Wifi \t\t: invalid config."
@@ -103,6 +110,7 @@ class connectWifi(threading.Thread):
 
             try:
                 scheme.activate()
+                os.system("ifup wlan0")
                 self.status=2 # 2=success
                 self.status_callback(self.status)
             except:

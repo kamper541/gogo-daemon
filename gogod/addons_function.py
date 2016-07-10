@@ -3,11 +3,12 @@ import sys
 import config
 import re
 from easyprocess import EasyProcess
+import consolelog
 
-APPLICATION_PATH = os.path.abspath(os.path.dirname(sys.argv[0]))
-CONFIG_FILE = os.path.join(APPLICATION_PATH, "raspberry_setting.json")
-ADDONS_PATH = os.path.join(APPLICATION_PATH, "addons")
-LOG_TITLE = 'Add-ons\t: '
+APPLICATION_PATH    = os.path.abspath(os.path.dirname(sys.argv[0]))
+CONFIG_FILE         = os.path.join(APPLICATION_PATH, "raspberry_setting.json")
+ADDONS_PATH         = os.path.join(APPLICATION_PATH, "addons")
+LOG_TITLE           = "Add-ons"
 
 
 class Timeout(Exception):
@@ -16,7 +17,7 @@ class Timeout(Exception):
 
 class AddOnsManager():
     def __init__(self, gogod_config=None):
-        print LOG_TITLE + "init"
+        consolelog.log(LOG_TITLE, "init")
         self.conf = config.Config() if gogod_config is None else gogod_config
         self.running_list = {}
         self.reserved_name = ['__init__.py','checker.py','gogod_interface.py','example.py']
@@ -29,7 +30,7 @@ class AddOnsManager():
         for f in os.listdir(os.path.abspath(ADDONS_PATH)):
             module_name, ext = os.path.splitext(f)  # Handles no-extension files, etc.
             if ext == '.py':  # Important, ignore .pyc/other files.
-                # print LOG_TITLE+'found %s' % (module_name)
+                consolelog.log(LOG_TITLE, 'found %s' % (module_name))
                 # module = __import__(module_name)
                 library_list.append("%s%s" % (module_name, ext))
         return list(set(library_list) - ( set(self.reserved_name) - set(['example.py']) ) )
@@ -90,17 +91,17 @@ class AddOnsManager():
     def start_addons(self, filename):
 
         result = {'result': False, 'error': ''}
-        print LOG_TITLE + 'Starting %s' % filename
+        consolelog.log(LOG_TITLE, 'Starting %s' % filename)
         # check is already run
         if filename in self.running_list:
             result['error'] = 'Already Run'
-            print LOG_TITLE + '%s already run' % filename
+            consolelog.log(LOG_TITLE, '%s already run' % filename)
             return result
 
         # Verify the file syntax
         file_verify = self.verify(filename)
         if not file_verify['result']:
-            print LOG_TITLE + '%s is verify fail' % filename
+            consolelog.log(LOG_TITLE, 'verify %s fail' % filename)
             return file_verify
 
         full_filepath = os.path.join(ADDONS_PATH, filename)
@@ -123,7 +124,7 @@ class AddOnsManager():
         # else:
         #     os.killpg(os.getpgid(pro.pid), signal.SIGTERM)  # Send the signal to all the process groups
 
-        print LOG_TITLE + 'Started %s %s' % (filename, result['result'])
+        consolelog.log(LOG_TITLE, 'Started %s %s' % (filename, result['result']))
         return result
 
     def stop_addons(self, filename):
@@ -131,14 +132,14 @@ class AddOnsManager():
         result = {'result': True}
 
         if filename in self.running_list:
-            print LOG_TITLE + 'Terminating %s' % filename
+            consolelog.log(LOG_TITLE, 'Terminating %s' % filename)
             pro = self.running_list[filename]
             os.killpg(os.getpgid(pro.pid), signal.SIGTERM)  # Send the signal to all the process groups
             del self.running_list[filename]
             result['result'] = True
-            print LOG_TITLE + 'Terminated %s' % filename
+            consolelog.log(LOG_TITLE, 'Terminated %s' % filename)
         else:
-            print LOG_TITLE + ' %s not run' % filename
+            consolelog.log(LOG_TITLE, ' %s is not run' % filename)
 
         return result
 
@@ -148,7 +149,6 @@ class AddOnsManager():
             return {'result': False, 'error': 'No file exist.'}
 
         cmd = r'python -m py_compile %s' % filename
-        print cmd
         # p = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         p = subprocess.Popen(cmd.split(), stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         out, err = p.communicate()
@@ -166,19 +166,19 @@ class AddOnsManager():
         filename = self.corect_filename(params['file']['filename'])
 
         full_file_path = os.path.join(ADDONS_PATH, filename)
-        print LOG_TITLE + 'file named %s' % filename
+        consolelog.log(LOG_TITLE, 'file named %s' % filename)
 
         #Check is a reserved name
         if filename in self.reserved_name:
             result['message'] = 'file_reserved'
-            print LOG_TITLE + 'file reserved'
+            consolelog.log(LOG_TITLE, 'file reserved')
             return result
 
         # Check file exists?
         result['message'] = (os.path.exists(full_file_path))
         if result['message'] and not confirm:
             result['message'] = 'file_exists'
-            print LOG_TITLE + 'file exists'
+            consolelog.log(LOG_TITLE, 'file exists')
             return result
 
         # Write html content to a file.
@@ -191,7 +191,7 @@ class AddOnsManager():
 
     def get_file(self, filename):
         full_file_path = os.path.join(ADDONS_PATH, filename)
-        print LOG_TITLE + 'getting file %s' % filename
+        consolelog.log(LOG_TITLE, 'getting file %s' % filename)
         if (os.path.exists(full_file_path)):
             return open(full_file_path, "rb").read()
         return ""
