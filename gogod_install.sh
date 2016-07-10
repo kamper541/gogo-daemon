@@ -18,7 +18,7 @@ trap 'abort' 0
 echo "Welcome to GoGod Installer"
 
 echo
-echo " [step 1 of x] updating system..."
+echo " [step 1 of 4] updating system..."
 set +e
 apt-get -qq update
 #sudo apt-get upgrade -y
@@ -26,7 +26,7 @@ apt-get -qq update
 #sudo apt-get install rpi-update -y
 #sudo rpi-update
 
-echo " [step 2 of x] installing GoGoD dependencies..."
+echo " [step 2 of 4] installing GoGoD dependencies..."
 set -e
 # Dependencies
 apt-get -qq install python-setuptools -y
@@ -43,9 +43,7 @@ apt-get -qq install python-gammu -y
 
 apt-get install python-opencv -y
 
-echo " [step 3 of x] installing python modules..."
-# python modules
-# https://github.com/pyserial/pyserial
+echo " [step 3 of 4] installing python modules..."
 pip install pyserial
 pip install tornado
 pip install wifi
@@ -55,7 +53,7 @@ pip install requests
 pip install EasyProcess
 pip install python-telegram-bot --upgrade
 
-echo " [step 3 of x] configurating serial port..."
+echo " [step 3 of 4] configurating serial port..."
 
 # Disable Bluetooth
 sed -i '/dtoverlay=pi3-disable-bt/c\' /boot/config.txt
@@ -70,24 +68,7 @@ if grep -q serial0 $cmdline_file ||  grep -q ttyAMA0 $cmdline_file ; then
         sudo sh -c "echo \"dwc_otg.lpm_enable=0 console=tty1 root=/dev/mmcblk0p2 rootfstype=ext4 elevator=deadline rootwait\" >> $cmdline_file"
 fi
 
-# echo " [step 4 of x] installing OpenCV..."
-# ### Open CV ###
-# # https://github.com/Nolaan/libopencv_24
-# ### Compiled OpenCV 2.4 Libraries for Raspberry Pi
-# opencv_version="2.4.11"
-# if [ -f "/tmp/libopencv_$opencv_version.deb" ]
-# then
-#         echo "Downloaded OpenCV $opencv_version"
-# else
-#         wget "https://github.com/Nolaan/libopencv_24/releases/download/OpenCV_$opencv_version/libopencv_$opencv_version.deb.zip" -P /tmp/
-#         unzip "/tmp/libopencv_$opencv_version.deb.zip" -d /tmp/
-# fi
-
-# dpkg -i "/tmp/libopencv_$opencv_version.deb"
-# ldconfig
-
-
-echo " [step 4 of x] installing GoGoD..."
+echo " [step 4 of 4] installing GoGoD..."
 
 # Insatll as a service
 service_file="/lib/systemd/system/gogod.service"
