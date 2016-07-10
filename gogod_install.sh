@@ -104,8 +104,10 @@ tar -xzf $temp_path/gogod.tar.gz -C $temp_path
 mv $temp_path/gogod-master-* $temp_path/gogod
 cp -r $temp_path/gogod/gogod/* $gogod_path
 
-if ! [ -f "$service_file" ]
+if [ -f "$service_file" ]
 then
+    systemctl restart gogod.service
+else
         touch $service_file
         
         sudo sh -c "echo \"$service_content\" >> $service_file"
@@ -120,6 +122,9 @@ fi
 chown pi:pi /opt/gogod -R
 chmod +x /opt/gogod/start
 chmod +x /opt/gogod/gogod
+
+set +e
+rm -r $temp_path
 
 trap : 0
 
