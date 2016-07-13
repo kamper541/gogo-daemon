@@ -1,6 +1,6 @@
 # Changelog
 
-### Version 2.1.0 beta - 2016-07-11 - Marutpong Chailangka
+### Version 2.1.0 beta - 2016-07-14 - Marutpong Chailangka
 * Added IFTTT Trigger
 * Added Pi Display Text-to-Speech Configuration
  * replaceed speech synthesis engine to ResponsiveVoice JS

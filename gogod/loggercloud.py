@@ -19,6 +19,8 @@ import os, sys
 import json
 from StringIO import StringIO
 import copy
+import urllib
+import urllib2
 
 _rate_limit_cloud = 1 #seconds
 
@@ -40,6 +42,7 @@ class CloudDataThread(threading.Thread):
 
         self.api_key = self.conf.getClouddataKey()
         self._last_handle = {'field1':0}
+        self.valid_names = ['field1','field2','field3','field4','field5','field6','field7','field8','created_at']
         print "CloudData \t: Created Thread"
         self.start()
 
@@ -116,25 +119,37 @@ class CloudDataThread(threading.Thread):
         #    return False
 
         #self.flag_connect = True
+        dictData = self.check_valid_name(dictData)
         self.getAPIKey()
         print "CloudData \t: %s" % dictData
         data = copy.deepcopy(dictData)
         data['key'] = self.api_key
+
+        params = urllib.urlencode(dictData)
+        request = urllib2.Request("https://data.learninginventions.org/update?key=%s&%s" % (self.api_key, params) )
         try:
-            r = requests.post("https://data.learninginventions.org/update", data=data)
-            return_data = r.text
+            # r = requests.post("https://data.learninginventions.org/update", data=data, ,verify=False)
+            # return_data = r.text
+            result = urllib2.urlopen(request)
+            return_data = result.read()
             self.last_timestamp = time.time()
 
             print "CloudData \t: Seq. =%s" % return_data
 
             #self.flag_connect = False
-            return int(return_data) > 0
+            return int(return_data) > -1
 
         except:
             print "CloudData \t: Connected Error"
             #self.flag_connect = False
             return False
         return False
+
+    def check_valid_name(self, dictData):
+        old_dict = dictData
+        wanted_keys = self.valid_names
+        new_dict = {k: old_dict[k] for k in set(wanted_keys) & set(old_dict.keys())}
+        return new_dict
 
     def getDatetime(self):
         return time.strftime("%Y-%m-%d %H:%M:%S",time. gmtime())
