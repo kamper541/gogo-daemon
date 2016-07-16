@@ -3,14 +3,14 @@ Installation
 
 
 
-**Install by Package**
+**Install via Command Line**
 
 ```bash
 $ curl -s https://git.learninginventions.org/gogo/gogod/raw/master/gogod_install.sh | sudo sh
 ```
 
 
-**Install by Image File**
+**Install from Image File**
 
  - Download the ZIP file of Image (<a href="https://gogo.learninginventions.org/download/#raspberrypi" target="_blank">download</a>)
  - After downloading the .zip file, unzip it to get the image file (.img)
