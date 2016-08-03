@@ -52,6 +52,7 @@ pip install pycrypto
 pip install requests
 pip install EasyProcess
 pip install python-telegram-bot --upgrade
+pip install telepot --upgrade
 
 echo " [step 3 of 4] configurating serial port..."
 
