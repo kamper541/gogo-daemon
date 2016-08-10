@@ -52,6 +52,7 @@ pip install pycrypto
 pip install requests
 pip install EasyProcess
 pip install python-telegram-bot --upgrade
+pip install telepot --upgrade
 
 echo " [step 3 of 4] configurating serial port..."
 
@@ -64,7 +65,7 @@ systemctl disable hciuart
 cmdline_file="/boot/cmdline.txt"
 if grep -q serial0 $cmdline_file ||  grep -q ttyAMA0 $cmdline_file ; then
         sed -i '/ttyAMA0/c\' $cmdline_file
-	sed -i '/serial0/c\' $cmdline_file
+    sed -i '/serial0/c\' $cmdline_file
         sudo sh -c "echo \"dwc_otg.lpm_enable=0 console=tty1 root=/dev/mmcblk0p2 rootfstype=ext4 elevator=deadline rootwait\" >> $cmdline_file"
 fi
 
@@ -86,6 +87,7 @@ WantedBy=multi-user.target"
 gogod_url="https://git.learninginventions.org/gogo/gogod/repository/archive.tar.gz?ref=master"
 temp_path="/tmp/gogod_install"
 gogod_path="/opt/gogod"
+is_install=true
 
 set -e
 if [ -d $temp_path ]
@@ -102,31 +104,39 @@ fi
 curl -o $temp_path/gogod.tar.gz $gogod_url
 tar -xzf $temp_path/gogod.tar.gz -C $temp_path
 mv $temp_path/gogod-master-* $temp_path/gogod
-cp -r $temp_path/gogod/gogod/* $gogod_path
 
 if [ -f "$service_file" ]
 then
-    systemctl restart gogod.service
+    # systemctl restart gogod.service
+    is_install=false
+    rsync -av --exclude='raspberry_setting.json' --exclude='www/media/log/*' $temp_path/gogod/gogod/ $gogod_path
 else
-        touch $service_file
-        
-        sudo sh -c "echo \"$service_content\" >> $service_file"
-        chmod 644 $service_file
+    cp -r $temp_path/gogod/gogod/* $gogod_path
 
-        systemctl daemon-reload
-        systemctl enable gogod.service
-        systemctl start gogod.service
-        mkdir /var/log/gogod
-        ln -s /opt/gogod/ /home/pi/gogod
+    touch $service_file
+
+    sudo sh -c "echo \"$service_content\" >> $service_file"
+    chmod 644 $service_file
+
+    systemctl daemon-reload
+    systemctl enable gogod.service
+    systemctl start gogod.service
+    mkdir /var/log/gogod
+    ln -s /opt/gogod/ /home/pi/gogod
 fi
 chown pi:pi /opt/gogod -R
 chmod +x /opt/gogod/start
 chmod +x /opt/gogod/gogod
 
+if [ "$is_install" = true ] ; then
+    echo "Installation is complete."
+    echo "Please reboot, GoGoD will autorun after booting."
+else
+    systemctl restart gogod.service
+    echo "GoGoD is up to date."
+fi
+
 set +e
 rm -r $temp_path
 
 trap : 0
-
-echo "Installation is complete."
-echo "Please reboot, GoGoD will autorun after booting."
