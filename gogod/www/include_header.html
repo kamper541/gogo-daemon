@@ -36,10 +36,12 @@ for($i=0;$i<sizeof($config['element']);$i++)  {
     <ul class="nav navbar-nav">
 
       {% for entry in config_data['element'] %}
-
+        {% if entry['label'] == 'File Manager' %}
+          {% set entry['url'] = config_data['hostname']+entry['url'] %}
+        {% end %}
 
         <li {% if entry['url'] in config_data['url'] %}class="active"{% end %} >
-          <a href="{{ config_data['hostname'] }}{{ entry['url'] }}"><i class="{{ entry['icon'] }} hidden-md hidden-sm"></i>{{ entry['label'] }}</a>
+          <a href="{{ entry['url'] }}"><i class="{{ entry['icon'] }} hidden-md hidden-sm"></i>{{ entry['label'] }}</a>
         </li>
       {% end %}
     </ul>

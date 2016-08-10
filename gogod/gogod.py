@@ -32,6 +32,7 @@ from addons import Addons
 import addons_function
 import webui_function
 import ifttt
+import telegram
 import consolelog
 
 # logging.basicConfig(
@@ -66,14 +67,16 @@ class GogoD():
         self.data_logger = loggerfile.dataLogger(os.path.join(MEDIA_PATH, "log"), MEDIA_PATH)
         self.cloud_logger = loggercloud.CloudDataThread(self.conf)
 
-        self.background_push = push.BackgroundCheck(self.setKeyValueEvent)
+        self.background_push = push.BackgroundCheck(self.sendKeyValueEvent)
         self.text2speech = text2speech.TextToSpeech()
         self.webUIfunc = webui_function.WebUIFunction()
         self.addons_mng = addons_function.AddOnsManager(self.conf)
         self.ifttt = ifttt.IftttTrigger(self.conf)
+        self.telegram_bot = telegram.TelegramBot(self.conf, self.sendKeyValueEvent)
+        self.conf.set_telegram_object(self.telegram_bot)
 
         # Addons
-        self.addons_thread = Addons(APPLICATION_PATH, self.setKeyValueEvent)
+        self.addons_thread = Addons(APPLICATION_PATH, self.sendKeyValueEvent)
         self.addons_thread.start()
 
         # Pi Display : current image
@@ -144,7 +147,7 @@ class GogoD():
         event_array.append(ypos & 0xff)
         self.send_on_keyvalue_buffer(const.REG_PACKET_TYPE_ON_TAP, event_array)
 
-    def setKeyValueEvent(self, key, value):
+    def sendKeyValueEvent(self, key, value):
         key = key.strip()
         value = value.strip()
         parameter = key + "," + value
@@ -155,7 +158,7 @@ class GogoD():
         if value != "":
             if key == "speech":
                 self.broadcast_websocket("speech," + value)
-            t = Thread(target=self.setKeyValueEvent, args=(key, "",))
+            t = Thread(target=self.sendKeyValueEvent, args=(key, "",))
             t.start()
         else:
             time.sleep(0.5)
@@ -302,22 +305,13 @@ class GogoD():
                 file_name = cmd[2:]
                 # convert list of ascii values to string
                 file_name = ''.join(chr(i) for i in file_name)
-                listsoundfiletype = ['mp3', 'ogg', 'wav', 'wave']
-                listsoundfiletypedirectory = ['audio/mpeg', 'audio/ogg']
-                for index, type in enumerate(listsoundfiletype):
-                    file_name_check = file_name + "." + type
-                    if os.path.exists(os.path.join(MEDIA_PATH, file_name_check)):
-                        file_name = file_name_check
-                        break
-                    elif os.path.exists(os.path.join(MEDIA_PATH, "recordings", file_name_check)):
-                        file_name = file_name_check
-                        break
+
+                file_name = self.conf.auto_filename_sound(file_name)
+     
                 consolelog.log(LOG_TITLE, "Play sound %s" % file_name)
                 self.broadcast_websocket("play_sound," + file_name)
                 if os.path.exists(os.path.join(MEDIA_PATH, file_name)):
                     audio.play_sound(os.path.join(MEDIA_PATH, file_name))
-                else:
-                    audio.play_sound(os.path.join(MEDIA_PATH, "recordings", file_name_check))
 
             elif cmd[1] == const.STOP_SOUND:
                 consolelog.log(LOG_TITLE, "Stop sound")
@@ -326,15 +320,7 @@ class GogoD():
             elif cmd[1] == const.SHOW_IMAGE:
                 image_filename = ''.join(chr(i) for i in cmd[2:])
                 consolelog.log(LOG_TITLE, "show image %s" % image_filename)
-                listimagefiletype = ['png', 'jpg', 'jpeg', 'bmp', 'PNG','gif','GIF']
-                for type in listimagefiletype:
-                    image_filename2 = image_filename + "." + type
-                    if os.path.exists(os.path.join(MEDIA_PATH, image_filename2)):
-                        image_filename = image_filename2
-                        break
-                    elif os.path.exists(os.path.join(MEDIA_PATH, "snapshots", image_filename2)):
-                        image_filename = 'snapshots/' + image_filename2
-                        break
+                image_filename = self.conf.auto_filename_image(image_filename)
                 self.current_show_image = image_filename
                 self.broadcast_websocket("set_image," + image_filename)
 
@@ -446,9 +432,13 @@ class GogoD():
                 topic = arg[0]
                 message = arg[1]
 
-                consolelog.log("Message", "%s, %s" % (topic, message))
+                consolelog.log("Message", "%s" % (arg))
+
                 if topic == "@ifttt":
                     self.ifttt.trigger(arg)
+                elif topic == "@telegram":
+                    message = ','.join(str(x) for x in arg[1:])
+                    self.telegram_bot.handle_gogo_message(message)
                 else:
                     self.broadcast_to_interface(topic, message)
 
@@ -488,7 +478,7 @@ class GogoD():
 
         try:
             if event == 'keyvalue':
-                self.setKeyValueEvent(value1, value2)
+                self.sendKeyValueEvent(value1, value2)
 
             elif event == 'config/email':
                 self.conf.save_account(value1, value2)
@@ -575,7 +565,7 @@ class WSHandler(tornado.websocket.WebSocketHandler):
             gogod.setTapEvent(message[1], message[2])  # send x,y pos as paremeters
         elif message[0] == "keyvalue":
             consolelog.log("WS", "Key Value event detected")
-            gogod.setKeyValueEvent(message[1], message[2])  # send key,value as paremeters
+            gogod.sendKeyValueEvent(message[1], message[2])  # send key,value as paremeters
             # if "pet_idle.png" in message:
             #     self.write_message("pet_smile.png")
             # else:
@@ -862,9 +852,9 @@ class WSAddonsInterfaceHandler(tornado.websocket.WebSocketHandler):
         consolelog.log("Addons Interface", "received %" % message)
         message = message.split(',')
         if len(message) == 1:
-            gogod.setKeyValueEvent(message[0], '')
+            gogod.sendKeyValueEvent(message[0], '')
         elif len(message) > 1:
-            gogod.setKeyValueEvent(message[0], message[1])
+            gogod.sendKeyValueEvent(message[0], message[1])
 
     def on_close(self):
         consolelog.log("Addons Interface", "connection closed")

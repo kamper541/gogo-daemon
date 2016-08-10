@@ -195,6 +195,7 @@ class CameraControl():
 
         self.flushCameraBuffer()  # this reduces the frame delay
         frame = cv.QueryFrame(self.capture)
+        self.create_folder_if_not_exist()
         image_name = os.path.join(PICTURE_PATH, "capture_%s.jpg" % time.strftime("%y_%m_%d_%H_%M_%S"))
         cv.SaveImage(image_name, frame)
         cv.SaveImage(os.path.join(PICTURE_PATH, "current.jpg"), frame)  # this is the preview image
@@ -206,7 +207,12 @@ class CameraControl():
 
         self.flushCameraBuffer()  # this reduces the frame delay
         frame = cv.QueryFrame(self.capture)
+        self.create_folder_if_not_exist()
         cv.SaveImage(os.path.join(PICTURE_PATH, "current.jpg"), frame)  # this is the preview image
+
+    def create_folder_if_not_exist(self):
+        if not os.path.exists(PICTURE_PATH):
+            os.makedirs(PICTURE_PATH)
 
 
 if __name__ == '__main__':

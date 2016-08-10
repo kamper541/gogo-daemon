@@ -9,7 +9,7 @@ var slider = "input[type='number'], [data-type='range'], input[type='range'],sel
 var input_select = ",input[type='text']";
 var slider_values = [];
 
-var ws = new ReconnectingWebSocket("ws://"+window.location.hostname+":8888/ws");
+var ws = new ReconnectingWebSocket("ws://"+window.location.host+"/ws");
 
 // when data is comming from the server, this metod is called
         ws.onmessage = function (evt) {

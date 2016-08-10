@@ -18,8 +18,10 @@ import json
 import urllib2, base64
 import os
 import config
+import consolelog
 
 flag_run = False
+LOG_TITLE           = "PushBullet"
 
 class BackgroundCheck(object):
     """ Threading example class
@@ -45,7 +47,7 @@ class BackgroundCheck(object):
 
     def run(self):
         """ Method that runs forever """
-        print "PushBullet \t: background started"
+        consolelog.log(LOG_TITLE, "background started")
         while True:
             # Do something
             # print('Status : ' + self.status)
@@ -89,7 +91,7 @@ class PushBullet(threading.Thread):
         
         global flag_run
         if ((flag_run == False) and (self.token is not None)):
-            print "PushBullet \t: starting"
+            consolelog.log(LOG_TITLE, "starting")
             self.connect()
 
     def connect(self):
@@ -105,7 +107,7 @@ class PushBullet(threading.Thread):
 
     def on_message(self, ws, message):
         self.set_status("ok")
-        print "PushBullet \t: msg - >" + message
+        consolelog.log(LOG_TITLE, "msg - > %s" % message)
         message = json.loads(message)
         if (message['type'] == "tickle"):
             self.fetch_pushes(self.last_timestamp)
@@ -115,34 +117,34 @@ class PushBullet(threading.Thread):
         global flag_run
         flag_run = False
         self.set_status("error")
-        print "PushBullet \t: WS Error"
+        consolelog.log(LOG_TITLE, "WS Error")
         #print error
 
     def on_close(self, ws):
         global flag_run
         flag_run = False
         self.set_status("close")
-        print "PushBullet \t: WS Closed"
+        consolelog.log(LOG_TITLE, "WS Closed")
 
     def on_open(self, ws):
         self.set_status("ok")
-        print "PushBullet \t: WS Connected"
+        consolelog.log(LOG_TITLE, "WS Connected")
 
     def getToken(self):
         token =  self.conf.getPushbulletToken()
         # print token
         if ((self.token is not None) and (self.token != token)):
-            print "PushBullet \t: Token changed by user"
+            consolelog.log(LOG_TITLE, "Token changed by user")
             self.set_status("close")
             self.ws.close()
             self.stop()
 
         if ((self.token != token) and self.is_valid_token(token) ):
             self.token = token
-            print "PushBullet \t: Changed token"
+            consolelog.log(LOG_TITLE, "Changed token")
 
         elif((self.token != token) and self.token is not None and not self.is_valid_token(token)):
-            print "PushBullet \t: Invalid token file"
+            consolelog.log(LOG_TITLE, "Invalid token file")
 
     def is_valid_token(self, token=None):
         if token is None:
@@ -165,7 +167,7 @@ class PushBullet(threading.Thread):
                             self.callback_setKeyValueEvent(entry['title'],entry['body'])
                         # print data
         except:
-            print "PushBullet \t: Fetch Error"
+            consolelog.log(LOG_TITLE, "Fetch Error")
 
 if __name__ == "__main__":
     background = BackgroundCheck()

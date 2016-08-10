@@ -197,7 +197,7 @@ function handleLoaded(series){
         return;
     });
 
-    var ws = new ReconnectingWebSocket("ws://"+window.location.hostname+":8888/ws");
+    var ws = new ReconnectingWebSocket("ws://"+window.location.host+"/ws");
     ws.onmessage = function (evt) {
 
         if (!$('[name=auto_update]').prop( "checked" )){

@@ -202,7 +202,7 @@ Updateed:       2015-08-18
             ws.send(string);
         }
 
-        var ws = new ReconnectingWebSocket("ws://"+window.location.hostname+":8888/ws");
+        var ws = new ReconnectingWebSocket("ws://"+window.location.host+"/ws");
         ws.onmessage = function (evt) {
             cmd = evt.data.split(",");
             if (cmd[0] == "play_sound") {

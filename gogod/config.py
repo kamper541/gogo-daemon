@@ -19,6 +19,7 @@ APPLICATION_PATH    = os.path.abspath(os.path.dirname(sys.argv[0]))
 CONFIG_FILE         = os.path.join(APPLICATION_PATH, "raspberry_setting.json")
 HTML_PATH           = os.path.join(APPLICATION_PATH, "www", "media", "html")
 ADDONS_PATH         = os.path.join(APPLICATION_PATH, "addons")
+MEDIA_PATH          = os.path.join(APPLICATION_PATH, "www", "media")
 LOG_TITLE           = "Config"
 
 
@@ -38,6 +39,8 @@ class Config():
         self.enable_log_cloud   = "enable_log_cloud"
         self.addons             = "addons"
         self.ifttt_key          = "ifttt_key"
+        self.telegram_bot_token     = "telegram_bot_token"
+        self.telegram_bot_sender    = "telegram_bot_sender"
         self.display_speak_voice    = "display_speak_voice"
         self.display_speak_pitch    = "display_speak_pitch"
         self.display_speak_rate     = "display_speak_rate"
@@ -45,8 +48,11 @@ class Config():
         self.api_events = ['keyvalue', 'datalog', 'wifi', 'config']
         self.valid_configs = [self.wifi_ssid, self.wifi_password, self.gmail_username, self.gmail_password,
                               self.pushbullet_token, self.clouddata_key, self.autoconnect_wifi, self.enable_log_file,
-                              self.enable_log_cloud, self.addons, self.ifttt_key, self.display_speak_voice, self.display_speak_pitch, self.display_speak_rate]
+                              self.enable_log_cloud, self.addons, self.ifttt_key, self.display_speak_voice, self.display_speak_pitch, self.display_speak_rate, self.telegram_bot_token, self.telegram_bot_sender]
         self.current = self.get_all()
+
+        self.list_image_dir = ['','snapshots', 'images']
+        self.list_image_ext = ['png', 'jpg', 'jpeg', 'bmp', 'PNG', 'gif', 'GIF']
 
     def get_except_credential(self):
         #data = self.get_all()
@@ -241,11 +247,30 @@ class Config():
             return self.get(self.clouddata_key).strip()
         return None
 
+    def validateClouddataKey(self, key=None):
+        if key is None:
+            key = self.getClouddataKey()
+
+        if key is None or len(key) != 16:
+            return False
+        return True
+
     def get_iftt_key(self):
         return self.get(self.ifttt_key)
 
     def save_iftt_key(self, key):
         self.save_to_file({self.ifttt_key: key})
+
+    def get_telegram_bot_token(self):
+        return self.get(self.telegram_bot_token)
+
+    def save_telegram_bot_token(self, key):
+        self.save_to_file({self.telegram_bot_token: key})
+        if self.telegram_object is not None:
+            self.telegram_object.connect()
+
+    def set_telegram_object(self, telegram_object):
+        self.telegram_object = telegram_object
 
     def saveClouddataKey(self, key):
         self.save_to_file({self.clouddata_key: key})
@@ -271,9 +296,37 @@ class Config():
             param_stripped = self.trim_left(param, "input_")
             if self.is_valid_config_name(param_stripped) and params[param] != [''] and len(params[param]) == 1:
                 value = params[param][0]
-                self.save(param_stripped, value)
+                if param_stripped == 'telegram_bot_token':
+                    self.save_telegram_bot_token(value)
+                else:
+                    self.save(param_stripped, value)
 
         return True;
+
+    def auto_filename_image(self, filename):
+        return self.auto_filename(self.list_image_dir,self.list_image_ext, filename)
+
+    def auto_filepath_image(self, filename):
+        filename = self.auto_filename_image(filename)
+        print filename
+        return os.path.join(MEDIA_PATH, filename)
+
+    def auto_filename_sound(self, filename):
+        list_sound_dir = ['', 'sounds', 'recordings']
+        list_sound_type = ['mp3', 'ogg', 'wav', 'wave']
+        return self.auto_filename(list_sound_dir, list_sound_type, filename)
+
+    def auto_filename(self,list_dir=[], list_ext=[], filename=None):
+        for dir in list_dir:
+            if os.path.exists(os.path.join(MEDIA_PATH, dir, filename)):
+                return os.path.join(dir, filename)
+
+        for type in list_ext:
+            filename_with_ext = filename + "." + type
+            for dir in list_dir:
+                if os.path.exists(os.path.join(MEDIA_PATH, dir, filename_with_ext)):
+                    return os.path.join(dir, filename_with_ext)
+        return filename
 
     def is_valid_event(self, event):
         return event in self.api_events

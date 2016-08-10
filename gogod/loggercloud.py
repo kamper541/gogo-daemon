@@ -21,11 +21,14 @@ from StringIO import StringIO
 import copy
 import urllib
 import urllib2
+import consolelog
 
 _rate_limit_cloud = 1 #seconds
 
 APPLICATION_PATH   = os.path.abspath(os.path.dirname(sys.argv[0]))
 QUEUE_FILE         = os.path.join(APPLICATION_PATH, "www", "media","log" , "logging_queue.txt")
+
+LOG_TITLE           = "CloudData"
 
 class CloudDataThread(threading.Thread):
     def __init__(self, gogod_config=None):
@@ -43,7 +46,7 @@ class CloudDataThread(threading.Thread):
         self.api_key = self.conf.getClouddataKey()
         self._last_handle = {'field1':0}
         self.valid_names = ['field1','field2','field3','field4','field5','field6','field7','field8','created_at']
-        print "CloudData \t: Created Thread"
+        consolelog.log(LOG_TITLE, "Created Thread")
         self.start()
 
 
@@ -68,13 +71,16 @@ class CloudDataThread(threading.Thread):
 
             if self.data_from_queue == {}:
                 queue_data = self.get_queue_file()
-                if queue_data is not None:
+                queue_data = self.check_valid_name(queue_data)
+                if queue_data is not None and queue_data != {}:
                     self.data_from_queue = queue_data
+                else:
+                    self.pop_queue_file()
             else:
                 self.state_normal = True
 
             if self.data_from_queue != {}:
-                print "CloudData \t: Queueing"
+                consolelog.log(LOG_TITLE, "Queueing")
                 # if send data success then clear variable
                 if self.updateData(self.data_from_queue):
                     self.data_from_queue = {}
@@ -120,8 +126,15 @@ class CloudDataThread(threading.Thread):
 
         #self.flag_connect = True
         dictData = self.check_valid_name(dictData)
+        consolelog.log(LOG_TITLE, "%s" % dictData)
         self.getAPIKey()
-        print "CloudData \t: %s" % dictData
+
+        if not self.conf.validateClouddataKey(self.api_key):
+            return False
+
+        if dictData is None or dictData == {}:
+            return True
+        
         data = copy.deepcopy(dictData)
         data['key'] = self.api_key
 
@@ -134,21 +147,26 @@ class CloudDataThread(threading.Thread):
             return_data = result.read()
             self.last_timestamp = time.time()
 
-            print "CloudData \t: Seq. =%s" % return_data
+            consolelog.log(LOG_TITLE, "Seq. =%s" % return_data)
 
             #self.flag_connect = False
-            return int(return_data) > -1
+            #return int(return_data) > -1
+            return True
 
         except:
-            print "CloudData \t: Connected Error"
+            consolelog.log(LOG_TITLE, "Connected Error")
             #self.flag_connect = False
             return False
         return False
 
-    def check_valid_name(self, dictData):
+    def check_valid_name(self, dictData=None):
+        if dictData is None:
+            return {}
         old_dict = dictData
         wanted_keys = self.valid_names
         new_dict = {k: old_dict[k] for k in set(wanted_keys) & set(old_dict.keys())}
+        if len(new_dict) == 1 and 'created_at' in new_dict:
+            return {}
         return new_dict
 
     def getDatetime(self):
@@ -193,7 +211,7 @@ class CloudDataThread(threading.Thread):
                 except:
                     # if invalid
                     self.pop_queue_file()
-                    print "CloudData \t: Queue file error"
+                    consolelog.log(LOG_TITLE, "Queue file error")
 
         return return_data
 

@@ -16,7 +16,7 @@
     <form class="form-horizontal" name="setting-pushbullet" action="save_setting.php" method="POST">
     <div class="panel panel-success">
       <div class="panel-heading">
-        <h3 class="panel-title">Setting</h3>
+        <h3 class="panel-title">Cloud Services Setting</h3>
       </div>
       <div class="panel-body">
         <br>
@@ -58,6 +58,7 @@
                 <p class="text-muted">IFTTT Maker Channel Key is at <a href="https://ifttt.com/maker" target="_blank">https://ifttt.com/maker</a>, Look at "Your key is:"</p>
               </div>
             </div>
+
             <legend class="text-success">Pushbullet</legend>
             <div class="form-group">
               <label for="input_pushbullet_token" class="col-md-2 control-label">Token</label>
@@ -86,60 +87,12 @@
               </div>
             </div>
 
-            <legend class="text-success">Wifi Configuration</legend>
+            <legend class="text-success">Telegram Bot</legend>
             <div class="form-group">
-              <label for="input_wifi_ssid" class="col-md-2 control-label">Wifi SSID</label>
+              <label for="input_telegram_bot_token" class="col-md-2 control-label">Telegram Bot Token</label>
               <div class="col-md-10">
-                <input type="text" class="form-control" id="input_wifi_ssid" name="input_wifi_ssid" placeholder="Wifi SSID">
+                <input type="text" class="form-control" id="input_telegram_bot_token" name="input_telegram_bot_token" placeholder="Telegram Bot Token">
               </div>
-            </div>
-            <div class="form-group">
-              <label for="input_wifi_password" class="col-md-2 control-label">Wifi Password</label>
-              <div class="col-md-10">
-                <input type="password" class="form-control" id="input_wifi_password" name="input_wifi_password" placeholder="Wifi Password" >
-              </div>
-            </div>
-            <div class="form-group">
-              <label for="checkbox_autoconnect_wifi" class="col-md-2 control-label">Auto Connect</label>
-              <div class="col-md-10">
-                <div class="togglebutton" style="vertical-align:middle;">
-                    <label>
-                        <input type="checkbox" name="checkbox_autoconnect_wifi"{% if config_data['settings']['autoconnect_wifi'] == True %} checked="checked" {% end %} >   <span class="toggle"></span>
-                    </label>
-                </div>
-              </div>
-              <input type="hidden" name="input_autoconnect_wifi" value=""> 
-            </div>
-
-            <legend class="text-success">Pi Display</legend>
-            <div class="form-group">
-              <label for="input_display_speak_voice" class="col-md-2 control-label">Voice</label>
-              <div class="col-md-10">
-                <select class="form-control" id="input_display_speak_voice" name="input_display_speak_voice">
-
-                </select>
-              </div>
-            </div>
-
-            <div class="row">
-              <div class="col-md-6">
-                <div class="form-group">
-                  <label for="input_display_speak_pitch" class="col-md-4 control-label">Pitch (range 0 to 2)</label>
-                  <div class="col-md-8">
-                    <input type="number" min="0" max="2" step="0.1" class="form-control" id="input_display_speak_pitch" name="input_display_speak_pitch" placeholder="Pitch" value="{{ config_data['settings']['display_speak_pitch'] or 1 }}" >
-                  </div>
-                </div>
-              </div>
-
-              <div class="col-md-6">
-                <div class="form-group">
-                  <label for="input_display_speak_rate" class="col-md-4 control-label">Rate (range 0 to 2)</label>
-                  <div class="col-md-8">
-                    <input type="number" min="0" max="2" step="0.1" class="form-control" id="input_display_speak_rate" name="input_display_speak_rate" placeholder="Rate" value="{{ config_data['settings']['display_speak_rate'] or 1 }}" >
-                  </div>
-                </div>
-              </div>
-
             </div>
 
 
@@ -154,6 +107,77 @@
         <span id="toast-success" class="btn btn-material-deeppurple hidden" onclick="javascript:$.snackbar({content: 'Saved Confiuration.'});">Create and show a snackbar.</span>
         <span id="toast-error" class="btn btn-material-deeppurple hidden" onclick="javascript:$.snackbar({content: 'Saving configuration error.'});">Create and show a snackbar.</span>
 
+      </div>
+    </div>
+    <div class="panel panel-success">
+      <div class="panel-heading">
+        <h3 class="panel-title">Setting</h3>
+      </div>
+      <div class="panel-body">
+        <br>
+        <legend class="text-success">Wifi Configuration</legend>
+        <div class="form-group">
+          <label for="input_wifi_ssid" class="col-md-2 control-label">Wifi SSID</label>
+          <div class="col-md-10">
+            <input type="text" class="form-control" id="input_wifi_ssid" name="input_wifi_ssid" placeholder="Wifi SSID">
+          </div>
+        </div>
+        <div class="form-group">
+          <label for="input_wifi_password" class="col-md-2 control-label">Wifi Password</label>
+          <div class="col-md-10">
+            <input type="password" class="form-control" id="input_wifi_password" name="input_wifi_password" placeholder="Wifi Password" >
+          </div>
+        </div>
+        <div class="form-group">
+          <label for="checkbox_autoconnect_wifi" class="col-md-2 control-label">Auto Connect</label>
+          <div class="col-md-10">
+            <div class="togglebutton" style="vertical-align:middle;">
+                <label>
+                    <input type="checkbox" name="checkbox_autoconnect_wifi"{% if config_data['settings']['autoconnect_wifi'] == True %} checked="checked" {% end %} >   <span class="toggle"></span>
+                </label>
+            </div>
+          </div>
+          <input type="hidden" name="input_autoconnect_wifi" value="">
+        </div>
+
+        <legend class="text-success">Pi Display</legend>
+        <div class="form-group">
+          <label for="input_display_speak_voice" class="col-md-2 control-label">Voice</label>
+          <div class="col-md-10">
+            <select class="form-control" id="input_display_speak_voice" name="input_display_speak_voice">
+
+            </select>
+          </div>
+        </div>
+
+        <div class="row">
+          <div class="col-md-6">
+            <div class="form-group">
+              <label for="input_display_speak_pitch" class="col-md-4 control-label">Pitch (range 0 to 2)</label>
+              <div class="col-md-8">
+                <input type="number" min="0" max="2" step="0.1" class="form-control" id="input_display_speak_pitch" name="input_display_speak_pitch" placeholder="Pitch" value="{{ config_data['settings']['display_speak_pitch'] or 1 }}" >
+              </div>
+            </div>
+          </div>
+
+          <div class="col-md-6">
+            <div class="form-group">
+              <label for="input_display_speak_rate" class="col-md-4 control-label">Rate (range 0 to 2)</label>
+              <div class="col-md-8">
+                <input type="number" min="0" max="2" step="0.1" class="form-control" id="input_display_speak_rate" name="input_display_speak_rate" placeholder="Rate" value="{{ config_data['settings']['display_speak_rate'] or 1 }}" >
+              </div>
+            </div>
+          </div>
+
+        </div>
+
+
+        <div class="form-group">
+          <div class="col-md-10 col-lg-offset-2">
+          <input type="hidden" name="raspberry-pi" value="save">
+          <button type="submit" class="btn btn-success">Save</button>
+          </div>
+        </div>
       </div>
     </div>
     </form>

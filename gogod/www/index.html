@@ -71,13 +71,18 @@ a:hover{
       <!-- The columns of text below the carousel -->
       <div class="row">
         {% for entry in config_data['element'] %}
+        
           <div class="col-lg-3 col-sm-6 text-center div_hover"><br>
-            <a href="{{ config_data['hostname'] }}{{ entry['url'] }}" target="_blank">
+            {% if entry['label'] == 'File Manager' %}
+              {% set entry['url'] = config_data['hostname']+entry['url'] %}
+            {% end %}
+            <a href="{{ entry['url'] }}" target="_blank">    
               <img class="img-circle" src="/www/hub/icon/{{ entry['image'] }}" alt="{{ entry['label'] }}"
               width="{{ config_data['image_size'] }}" height="{{ config_data['image_size'] }}">
               <h3 style="color:{{ entry['color'] }};">{{ entry['label'] }}</h3>
-            </a>
+            </a>  
           </div><!-- /.col-lg-4 -->
+          
         {% end %}
 </div><!-- /.row -->
 </div><!-- /.container -->
@@ -126,6 +131,10 @@ a:hover{
 
   <script type="text/javascript">
     $('#qrcode').qrcode("{{ config_data['hostname_port'] }}");
+
+    function openURL(url){
+      window.open(url, '_blank');
+    }
   </script>
 </body>
 </html>

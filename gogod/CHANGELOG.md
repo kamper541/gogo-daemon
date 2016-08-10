@@ -1,13 +1,18 @@
 # Changelog
 
-### Version 2.1.0 beta - 2016-07-14 - Marutpong Chailangka
+### Version 2.1.1 - 2016-08-04 - Marutpong Chailangka
+# Fixed issue when show current image on Pi Display
+
+### Version 2.1.0 - 2016-08-03 - Marutpong Chailangka
 * Added IFTTT Trigger
+* Added Telegram Bot to send message and image
 * Added Pi Display Text-to-Speech Configuration
  * replaceed speech synthesis engine to ResponsiveVoice JS
  * supported multi-browser
  * supported to change voice, pitch and rate
 * Updated more media file types supported (for pi display and file downloading)
 * Added console logging and log by pattern (date title message)
+* Added auto correction of media file name
 * Fixed SMS Sending issues
 * Fixed wifi issue
 
@@ -133,4 +138,3 @@ Add
 * Setting page (Pushbullet Token, Email Account)
 
  
-

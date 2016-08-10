@@ -26,4 +26,5 @@ def log(title=None, text=None):
 
 
 def getDateTime():
-    return time.strftime("%Y-%m-%d %H:%M:%S", time.gmtime())
+    return time.strftime("%H:%M:%S", time.gmtime())
+    # return time.strftime("%Y-%m-%d %H:%M:%S", time.gmtime())

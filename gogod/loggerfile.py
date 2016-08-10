@@ -33,7 +33,7 @@ class dataLogger():
         return file_list
 
     def fetch_file(self, file_name, filetype=None):
-        name = file_name.strip('.json')
+        name = self.trim_right(file_name,'.json')# file_name.strip('.json')
         full_name = os.path.join(self.log_path, name)
         full_name = "%s.csv" % (full_name)
         if not os.path.isfile(full_name):

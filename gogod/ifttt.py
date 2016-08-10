@@ -58,7 +58,6 @@ class IftttTrigger():
         if event_name is None or self.api_key is None:
             return False
         #self.flag_connect = True
-
         consolelog.log(LOG_TITLE, event_name)
         consolelog.log(LOG_TITLE, dict_data)
 
