@@ -1,7 +1,7 @@
 # Changelog
 
 ### Version 2.1.1 - 2016-08-04 - Marutpong Chailangka
-# Fixed issue when show current image on Pi Display
+* Fixed issue when show current image on Pi Display
 
 ### Version 2.1.0 - 2016-08-03 - Marutpong Chailangka
 * Added IFTTT Trigger
