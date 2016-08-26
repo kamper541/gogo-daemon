@@ -20,4 +20,4 @@ $ curl -s https://raw.githubusercontent.com/lilcmu/gogo-daemon/master/gogod_inst
 	 - Choose the drive letter that is assigned to the SD Card such as <kbd>F:</kbd>
 	 - Click **Write**
 	 
-	    ![Win32DiskImager](https://github.com/lilcmu/gogo-daemon/blob/master/docs/images/installation/win32diskimager.png?raw=true)
+	    ![Win32DiskImager](https://raw.githubusercontent.com/lilcmu/gogo-daemon/master/docs/images/installation/win32diskimager.png)
