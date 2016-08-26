@@ -1,5 +1,5 @@
-- [Installation](https://git.learninginventions.org/gogo/gogod/blob/master/docs/installation.md)
-- [Rest APIs](https://git.learninginventions.org/gogo/gogod/blob/master/docs/rest_api.md)
+- [Installation](https://github.com/LILCMU/gogo-daemon/blob/master/docs/installation.md)
+- [Rest APIs](https://github.com/LILCMU/gogo-daemon/blob/master/docs/rest_api.md)
 
 Installation
 ===================
