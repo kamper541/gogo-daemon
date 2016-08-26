@@ -5,6 +5,7 @@ import os
 import time
 import sys
 import cv2.cv as cv
+from datetime import datetime
 
 APPLICATION_PATH = os.path.abspath(os.path.dirname(sys.argv[0]))
 PICTURE_PATH = os.path.join(APPLICATION_PATH, "www", "media", "snapshots")
@@ -191,14 +192,16 @@ class CameraControl():
     def take_snapshot(self):
         # get image from webcam
         if not self.camera_is_on():
-            return
+            return None
 
         self.flushCameraBuffer()  # this reduces the frame delay
         frame = cv.QueryFrame(self.capture)
         self.create_folder_if_not_exist()
-        image_name = os.path.join(PICTURE_PATH, "capture_%s.jpg" % time.strftime("%y_%m_%d_%H_%M_%S"))
-        cv.SaveImage(image_name, frame)
+        image_name = "capture_%s.jpg" % time.strftime("%y_%m_%d_%H_%M_%S")
+        image_path = os.path.join(PICTURE_PATH, image_name)
+        cv.SaveImage(image_path, frame)
         cv.SaveImage(os.path.join(PICTURE_PATH, "current.jpg"), frame)  # this is the preview image
+        return image_name
 
     def take_preview_image(self):
         # get image from webcam
@@ -214,6 +217,25 @@ class CameraControl():
         if not os.path.exists(PICTURE_PATH):
             os.makedirs(PICTURE_PATH)
 
+    def list_all_files(self):
+        file_list = []
+
+        for f in os.listdir(os.path.abspath(PICTURE_PATH)):
+            name, ext = os.path.splitext(f)  # Handles no-extension files, etc.
+            if ext == '.jpg':
+                file_list.append("%s%s" % (name, ext))
+        return file_list
+
+    def list_images_and_time(self):
+        file_list = self.list_all_files()
+        return_list = []
+        for filename in file_list:
+            try:
+                date_object = datetime.strptime(filename, 'capture_%y_%m_%d_%I_%M_%S.jpg')
+            except:
+                continue
+            return_list.append([str(date_object), filename])
+        return return_list
 
 if __name__ == '__main__':
 

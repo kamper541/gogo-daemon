@@ -1,0 +1,36 @@
+{
+  "name": "highcharts-export-csv",
+  "description": "Highcharts plugin to export the chart data to CSV, XLS or HTML table",
+  "keywords": [
+    "export",
+    "csv",
+    "xls"
+  ],
+  "authors": [
+    {
+      "name": "Torstein Hønsi",
+      "homepage": "https://github.com/highslide-software"
+    }
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/highcharts/export-csv"
+  },
+  "main": "export-csv.js",
+  "license": "MIT",
+  "ignore": [
+    "**/.*",
+    "README.md"
+  ],
+  "homepage": "http://www.highcharts.com/plugin-registry/single/7/Export-CSV",
+  "_release": "7e0b0515a5",
+  "_resolution": {
+    "type": "branch",
+    "branch": "master",
+    "commit": "7e0b0515a52519cf14908e476c5914650b50ae38"
+  },
+  "_source": "https://github.com/highcharts/export-csv.git",
+  "_target": "*",
+  "_originalSource": "export-csv",
+  "_direct": true
+}

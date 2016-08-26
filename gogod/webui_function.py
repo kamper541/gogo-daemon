@@ -10,8 +10,8 @@ HTML_PATH           = os.path.join(APPLICATION_PATH,"www" ,"media", "html")
 JSON_PATH           = os.path.join(HTML_PATH, "json")
 
 CONTENT_INCLUDE     = '''<script src="../../bootstrap-material-design/dist/jquery-1.11.min.js"></script>
-                    <script src="../../hub/reconnecting-websocket.min.js"></script>
-                    <script src="../../hub/webui_event_handle.js"></script>'''
+                    <script src="../../dist/js/reconnecting-websocket.min.js"></script>
+                    <script src="../../dist/js/webui_event_handle.js"></script>'''
 CONTENT_META        = '<meta  name = "viewport" content = "initial-scale = 1.0, maximum-scale = 1.0, user-scalable = no, minimal-ui"><meta charset="utf-8"/>'
 
 

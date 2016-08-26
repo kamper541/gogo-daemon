@@ -41,19 +41,19 @@ Updateed:       2015-08-18
         animation: blinker linear 1.5s infinite;
     }
 
-    @-moz-keyframes blinker {  
+    @-moz-keyframes blinker {
         0% { opacity: 1.0; }
         50% { opacity: 0.0; }
         100% { opacity: 1.0; }
     }
 
-    @-webkit-keyframes blinker {  
+    @-webkit-keyframes blinker {
         10% { opacity: 1.0; }
         50% { opacity: 0.0; }
         90% { opacity: 1.0; }
     }
 
-    @keyframes blinker {  
+    @keyframes blinker {
         10% { opacity: 1.0; }
         50% { opacity: 0.0; }
         90% { opacity: 1.0; }
@@ -74,7 +74,7 @@ Updateed:       2015-08-18
                     </div>
                     <div class="col-lg-6 col-md-6 col-xs-5 ">
                         <div class="togglebutton" style="    vertical-align:middle;">
-                            <label>US 
+                            <label>US
                                 <input type="checkbox" name="langchange" id = "langchange" {% if 'th' in arguments %} checked = "checked" {% end %} >   <span class="toggle"></span>  TH
                             </label>
                         </div>
@@ -99,14 +99,14 @@ Updateed:       2015-08-18
     <script src="../bootstrap-material-design/dist/jquery-1.11.min.js"></script>
     <script src="../bootstrap-material-design/dist/js/bootstrap.min.js"></script>
     <script src="../bootstrap-material-design/dist/js/material.min.js"></script>
-    <script src="../hub/reconnecting-websocket.min.js"></script>
+    <script src="../dist/js/reconnecting-websocket.min.js"></script>
     <script type="text/javascript">
         //http://shapeshed.com/html5-speech-recognition-api/
         var recognition = new webkitSpeechRecognition();
         recognition.continuous = true;
         recognition.interimResults = true;
 
-        
+
 
         recognition.lang = "{% if 'th' in arguments %}th-TH{% else %}false{% end %}";
 
@@ -174,7 +174,7 @@ Updateed:       2015-08-18
             if ($('.blink_me').length > 0){
                 stop_recognize();
             } else {
-                start_recognize();       
+                start_recognize();
             }
         }
         function start_recognize(){
@@ -207,7 +207,7 @@ Updateed:       2015-08-18
             cmd = evt.data.split(",");
             if (cmd[0] == "play_sound") {
         //var aud = new Audio("/media/" + cmd[1]);
-        //aud.play();               
+        //aud.play();
         var aud = document.getElementById("sound");
         // Adds a uniqute time parameter so the browser re-loads
         // the image instead of using the cached one

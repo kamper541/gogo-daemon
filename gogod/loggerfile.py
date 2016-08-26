@@ -33,7 +33,8 @@ class dataLogger():
         return file_list
 
     def fetch_file(self, file_name, filetype=None):
-        name = self.trim_right(file_name,'.json')# file_name.strip('.json')
+        name = self.trim_right(file_name, '.min.json')  # file_name.strip('.json')
+        name = self.trim_right(name,'.json')# file_name.strip('.json')
         full_name = os.path.join(self.log_path, name)
         full_name = "%s.csv" % (full_name)
         if not os.path.isfile(full_name):
@@ -41,7 +42,17 @@ class dataLogger():
             return None
         else:
             raw = open(full_name, "rb").read()
-            if (filetype == 'json'):
+            if (filetype == 'min.json'):
+                data = {}
+                data_list = []
+                lines = raw.splitlines(True)
+                for line in lines:
+                    record = self.validate_line_min(line)
+                    if record is not None:
+                        data_list.append(record)
+                data[name] = data_list
+                return data
+            elif (filetype == 'json'):
                 data_list = []
                 lines = raw.splitlines(True)
                 for line in lines:
@@ -63,6 +74,18 @@ class dataLogger():
                 return dict
             except:
                 return None
+        return None
+
+    def validate_line_min(self, line):
+
+        line = line.strip().split(',')
+        if len(line) == 2:
+            try:
+                # convert string to float or int
+                line[1] = ast.literal_eval(line[1])
+                return line
+            except:
+                pass
         return None
 
     def validate_number(self, number):

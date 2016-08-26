@@ -13,15 +13,15 @@ Updateed:       2015-08-04
 
 
 /*--------------------------------------------------------------------
- * 
+ *
  * Declare variables and functions
  *
  *--------------------------------------------------------------------*/
 
 $dir    = './';
 $include_to_file = '<script src="../../bootstrap-material-design/dist/jquery-1.11.min.js"></script>'
-.'<script src="../../hub/reconnecting-websocket.min.js"></script>'
-.'<script src="../../hub/webui_event_handle.js"></script>';
+.'<script src="../../dist/js/reconnecting-websocket.min.js"></script>'
+.'<script src="../../dist/js/webui_event_handle.js"></script>';
 $include_meta = '<meta  name = "viewport" content = "initial-scale = 1.0, maximum-scale = 1.0, user-scalable = no, minimal-ui"><meta charset="utf-8"/>';
 
 /* Check is a html file by path */
@@ -45,12 +45,12 @@ function getFileContent($path){
 function getHtmlTitle($path) {
     $title = "Untitled";
     $fp = getFileContent($path);
-    if (!$fp) 
+    if (!$fp)
         return $title;
 
     $res = preg_match("/<title>(.*)<\/title>/siU", $fp, $title_matches);
-    if (!$res) 
-        return $title; 
+    if (!$res)
+        return $title;
 
 // Clean up title: remove EOL's and excessive whitespace.
     $title = preg_replace('/\s+/', ' ', $title_matches[1]);
@@ -66,12 +66,12 @@ function getHtmlTitle($path) {
 function getHtmlTitleJQuery($path) {
     $title = "Untitled";
     $fp = getFileContent($path);
-    if (!$fp) 
+    if (!$fp)
         return $title;
 
     $res = preg_match("/data-title=\"(.*)\"/siU", $fp, $title_matches);
-    if (!$res) 
-        return $title; 
+    if (!$res)
+        return $title;
 
     // Clean up title: remove EOL's and excessive whitespace.
     $title = preg_replace('/\s+/', ' ', $title_matches[1]);
@@ -90,7 +90,7 @@ if (isset($_GET['page']) && is_file($dir.$_GET['page']) && isHtml($_GET['page'])
         $position = strpos($fileContent,"<head>")+6;
         $fileContent = substr_replace($fileContent, $include_meta, $position, 0);
     }
-    
+
     if (strpos($fileContent,"</body>")>-1){
         $position = strpos($fileContent,"</body>");
         $fileContent = substr_replace($fileContent, $include_to_file, $position, 0);
@@ -101,7 +101,7 @@ if (isset($_GET['page']) && is_file($dir.$_GET['page']) && isHtml($_GET['page'])
 } else if (!isset($_GET['page'])) {
     $list_files = array();//scandir($dir,1);
     $exclude_files  = array(".", "..", "index.php", "event_handle.js");
-    $files = scandir($dir); 
+    $files = scandir($dir);
 
     /* Listing html files in the folder */
     foreach($files as $file)
@@ -138,7 +138,7 @@ if (isset($_GET['page']) && is_file($dir.$_GET['page']) && isHtml($_GET['page'])
                 <h3 class="text-info hidden-lg">Web UI Files</h3>
 
                 <p class="text-muted">Currently only buttons, sliders, switches are supported. Their values can be accessed via default keys "button", "slider" and "switch"</p>
-                <?php /* <p class="text-muted">Online UI Builder avaliable at <a href="https://01.org/rib/online/" target="_blank">https://01.org/rib/online/</a> 
+                <?php /* <p class="text-muted">Online UI Builder avaliable at <a href="https://01.org/rib/online/" target="_blank">https://01.org/rib/online/</a>
                     or on Raspberry Pi at <a href="<?php echo $path."/www/rapid_interface_builder" ?>" target="_blank"><?php echo $path."/www/rapid_interface_builder" ?></a></p> */ ?>
                     <br>
 
@@ -156,7 +156,7 @@ if (isset($_GET['page']) && is_file($dir.$_GET['page']) && isHtml($_GET['page'])
                                     </a>
                                     <div class="list-group-separator"></div>
 
-                                    <?php foreach ($list_files as $entry) { 
+                                    <?php foreach ($list_files as $entry) {
                                         $html_file_path = $dir.$entry;
                                         $title = getHtmlTitle($html_file_path);
                                     ?>
@@ -171,14 +171,14 @@ if (isset($_GET['page']) && is_file($dir.$_GET['page']) && isHtml($_GET['page'])
                                                     <p class="list-group-item-text"><?php echo $title  ?></p>
                                                 </div>
                                                 <div class="col-lg-1 col-md-2 visible-lg visible-md" >
-                                                    <a  href="<?php echo $path; ?>/www/rapid_interface_builder/?importjson=<?php echo explode(".htm", $entry)[0];?>" 
+                                                    <a  href="<?php echo $path; ?>/www/rapid_interface_builder/?importjson=<?php echo explode(".htm", $entry)[0];?>"
                                                         target="_blank"
-                                                        class="btn btn-default btn-fab btn-raised btn-sm mdi-editor-mode-edit" 
+                                                        class="btn btn-default btn-fab btn-raised btn-sm mdi-editor-mode-edit"
                                                         alt="Edit">
                                                     </a>
                                                 </div>
-                                                
-                                                
+
+
 
                                             </div>
                                         </div>
@@ -197,5 +197,5 @@ if (isset($_GET['page']) && is_file($dir.$_GET['page']) && isHtml($_GET['page'])
         <script src="../../bootstrap-material-design/dist/js/material.min.js"></script>
     </body>
     </html>
-    
+
 <?php } ?>

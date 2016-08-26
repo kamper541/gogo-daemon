@@ -284,8 +284,18 @@ class GogoD():
                     consolelog.log(LOG_TITLE, "Cannot turn off find face")
 
             elif cmd[1] == const.TAKE_SNAP_SHOT:
-                self.camera.take_snapshot()
-                consolelog.log(LOG_TITLE, "Snap shot taken")
+                image_name = self.camera.take_snapshot()
+
+                if image_name is not None:
+                    # Broadcast to WS
+                    packet = {
+                        "event": "datalog",
+                        "name": "snapshots",
+                        "datetime": self.data_logger.get_datetime_str(),
+                        "filename": image_name
+                    }
+                    self.broadcast_websocket("%s,%s" % ("datalog", json.dumps(packet)))
+                    consolelog.log(LOG_TITLE, "Snap shot taken")
 
             elif cmd[1] == const.TAKE_PREVIEW_IMAGE:
                 self.camera.take_preview_image()
@@ -495,14 +505,26 @@ class GogoD():
             elif event == 'wifi/connect':
                 wireless.connect(gogod.wifi_status_callback, value1, value2)
 
+            elif event == 'image':
+
+                if value1 == 'list_filename':
+                    return {'result': True, 'data': self.camera.list_all_files()}
+
+                elif value1 == 'list':
+                    return {'result': True, 'data': self.camera.list_images_and_time()}
+
             elif event == 'datalog':
 
                 if value1 == 'list':
                     return {'result': True, 'data': self.data_logger.list_all_files()}
 
                 elif value1 == 'get':
-                    if (value2.endswith('.json')):
+                    if (value2.endswith('.min.json')):
+                        result['data'] = self.data_logger.fetch_file(value2, 'min.json')
+                    elif (value2.endswith('.json')):
                         result['data'] = self.data_logger.fetch_file(value2,'json')
+                    elif (value2.endswith('.csv')):
+                        return self.data_logger.fetch_file(value2)
                     else:
                         result['data'] = self.data_logger.fetch_file(value2)
                     if result['data'] is  not None:

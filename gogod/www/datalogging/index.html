@@ -3,9 +3,6 @@
 /*--------------------------------------------------------------------
 Description:	List logged data and select the data to show or delete it.
 Authors:		Marutpong Chailangka
-Created:		2015-04-15
-Updateed:       2015-10-10
-				2015-05-05
 ---------------------------------------------------------------------*/
 
 #}
@@ -92,14 +89,14 @@ Updateed:       2015-10-10
 									</div>
 								</div>
 							</div>
-						<!--                        
+						<!--
 						<div class="form-group">
 						<div class="col-lg-10 col-lg-offset-4">
 						<button type="submit" class="btn btn-primary">Submit</button>
 						</div>
 						</div>	-->
 						</div>
-						<div class="col-lg-1 col-md-1 col-sm-12 text-center">                                
+						<div class="col-lg-1 col-md-1 col-sm-12 text-center">
 						</div>
 						</div>
 						<div class="row text-center">
@@ -120,8 +117,6 @@ Updateed:       2015-10-10
 	<script src="../bootstrap-material-design/dist/jquery-1.11.min.js"></script>
 	<script src="../bootstrap-material-design/dist/js/bootstrap.min.js"></script>
 	<script src="../bootstrap-material-design/dist/js/material.min.js"></script>
-
-	<!-- new -->
 	<script src="bootstrap-chosen/chosen.jquery.js"></script>
 	<script>
 		$(function() {
@@ -130,14 +125,16 @@ Updateed:       2015-10-10
 				$.each(data.data, function (index, record) {
 					$('#chooser').append('<option>'+record+'</option>');
 				});
+				$('#chooser').append('<option>snapshots</option>');
+
 				$('.chosen-select').chosen();
 				$('.chosen-select-deselect').chosen({ allow_single_deselect: true });
 			});
 
-
 		});
+
 		function on_submit(event){
-			
+
 			if (!event.id){
 				event.preventDefault();
 			};
@@ -150,7 +147,7 @@ Updateed:       2015-10-10
 			var by = $('[name=by]').val();
 			var is_range = $('[name=range]').prop( "checked" );
 			var date_range = $('[name=date_range]').val();
-			
+
 			$.each(datas, function (index, record) {
 				var input = record.split('=');
 				if (input[0]=='name'){

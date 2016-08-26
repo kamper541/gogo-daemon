@@ -1,0 +1,23 @@
+{
+  "name": "gogo-homescreen",
+  "authors": [
+    "marutpong <marutpong08@gmail.com>"
+  ],
+  "description": "GoGo Home Screen",
+  "main": "",
+  "license": "",
+  "homepage": "",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "highcharts": "^4.2.6",
+    "highcharts-export-csv": "export-csv#*",
+    "moment": "^2.14.1",
+    "bootstrap": "3.3.7"
+  }
+}

@@ -71,18 +71,18 @@ a:hover{
       <!-- The columns of text below the carousel -->
       <div class="row">
         {% for entry in config_data['element'] %}
-        
+
           <div class="col-lg-3 col-sm-6 text-center div_hover"><br>
             {% if entry['label'] == 'File Manager' %}
               {% set entry['url'] = config_data['hostname']+entry['url'] %}
             {% end %}
-            <a href="{{ entry['url'] }}" target="_blank">    
-              <img class="img-circle" src="/www/hub/icon/{{ entry['image'] }}" alt="{{ entry['label'] }}"
+            <a href="{{ entry['url'] }}" target="_blank">
+              <img class="img-circle" src="/www/dist/icon/{{ entry['image'] }}" alt="{{ entry['label'] }}"
               width="{{ config_data['image_size'] }}" height="{{ config_data['image_size'] }}">
               <h3 style="color:{{ entry['color'] }};">{{ entry['label'] }}</h3>
-            </a>  
+            </a>
           </div><!-- /.col-lg-4 -->
-          
+
         {% end %}
 </div><!-- /.row -->
 </div><!-- /.container -->
@@ -93,8 +93,8 @@ a:hover{
     data-toggle="tooltip" data-placement="left" title="" data-original-title="Setting"></a>
   </div>
   <div class="row top-buffer">
-    <a href="javascript:void(0)" class="btn btn-default btn-fab btn-raised mdi-communication-stay-current-portrait" 
-    data-toggle="modal" data-target="#dialog-qrcode" title="QR Code" 
+    <a href="javascript:void(0)" class="btn btn-default btn-fab btn-raised mdi-communication-stay-current-portrait"
+    data-toggle="modal" data-target="#dialog-qrcode" title="QR Code"
     ata-toggle="tooltip" data-placement="left" title="" data-original-title="QR Code"
     ></a></div>
 
@@ -126,8 +126,8 @@ a:hover{
   <script src="/www/bootstrap-material-design/dist/js/bootstrap.min.js"></script>
   <!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->
   <script src="/www/bootstrap-material-design/dist/js/ie10-viewport-bug-workaround.js"></script>
-  <script type="text/javascript" src="/www/hub/jquery.qrcode.js"></script>
-  <script type="text/javascript" src="/www/hub/qrcode.js"></script>
+  <script type="text/javascript" src="/www/dist/js/jquery.qrcode.js"></script>
+  <script type="text/javascript" src="/www/dist/js/qrcode.js"></script>
 
   <script type="text/javascript">
     $('#qrcode').qrcode("{{ config_data['hostname_port'] }}");
