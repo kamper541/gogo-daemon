@@ -6,7 +6,7 @@ Installation
 **Install via Command Line**
 
 ```bash
-$ curl -s https://git.learninginventions.org/gogo/gogod/raw/master/gogod_install.sh | sudo sh
+$ curl -s https://raw.githubusercontent.com/lilcmu/gogo-daemon/master/gogod_install.sh | sudo sh
 ```
 
 
@@ -20,4 +20,4 @@ $ curl -s https://git.learninginventions.org/gogo/gogod/raw/master/gogod_install
 	 - Choose the drive letter that is assigned to the SD Card such as <kbd>F:</kbd>
 	 - Click **Write**
 	 
-	    ![Win32DiskImager](https://git.learninginventions.org/gogo/gogod/raw/master/docs/images/installation/win32diskimager.png)
+	    ![Win32DiskImager](https://github.com/lilcmu/gogo-daemon/blob/master/docs/images/installation/win32diskimager.png?raw=true)
