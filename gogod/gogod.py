@@ -42,6 +42,7 @@ APPLICATION_PATH    = os.path.abspath(os.path.dirname(sys.argv[0]))
 WWW_PATH            = os.path.join(APPLICATION_PATH, "www")
 MEDIA_PATH          = os.path.join(APPLICATION_PATH, "www", "media")
 LOG_TITLE           = "Gogod"
+_rate_limit_global  = 0.1 #seconds
 
 class GogoD():
     def __init__(self):
@@ -81,6 +82,8 @@ class GogoD():
 
         # Pi Display : current image
         self.current_show_image = "pet_idle.png"
+
+        self.last_handle = {}
         # Auto connect to wifi
         wireless.autoconnect(self.wifi_status_callback)
 
@@ -254,6 +257,13 @@ class GogoD():
 
             cmd = [ord(c) for c in text_cmd]
             # print "cmd is %s " % cmd
+
+            #Except Data Logging Packet and ignore frequent packet
+            if  cmd[1] not in [const.RPI_RECORD_TO_RPI] and cmd[1] in self.last_handle and (time.time() - self.last_handle[cmd[1]]) < _rate_limit_global:
+                continue
+
+            self.last_handle[cmd[1]] = time.time()
+
 
             if cmd[1] == const.USE_CAMERA:
                 self.camera.use_camera()

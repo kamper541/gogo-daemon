@@ -1,5 +1,10 @@
 # Changelog
 
+### Version 2.1.3 - 2016-11-28
+* Fixed Telegram Bot issue.
+* Added rate limit to each cmd Packet
+* Updated IFTTT description in setting page
+
 ### Version 2.1.2 - 2016-08-18 - Marutpong Chailangka
 * Added photos display on the data logging graph
 * Updated loading data logging from each file directly for better performance.  
