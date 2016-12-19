@@ -52,7 +52,10 @@ $(function () {
 					isLoading[name] =  false;
 					seriesOptions[seriesCounter] = {
 						name: name,
-						data: list
+						data: list,
+						marker : {
+						    enabled: list.length < 100, radius : 3
+						}
 					};
 					chart_names[seriesCounter] = name;
 				}).always(function() {
@@ -162,6 +165,24 @@ $(function () {
 
 	}
 
+	function updateMarkerShow() {
+
+	    for (var i=0;i<chart.series.length;i++) {
+
+	        if (chart.series[i].name == 'Navigator 1') {
+                continue;
+            }
+
+            console.log(chart.series[i].points.length);
+
+	        chart.series[i].update({
+                marker: {
+                    enabled: (chart.series[i].points.length < 100)
+                }
+            });
+	    }
+	}
+
 	function createChart(hasData) {
 
 		$('#container').highcharts('StockChart', {
@@ -173,7 +194,6 @@ $(function () {
 						if (!hasData) {return;}
 						var series2 = this.series.slice(0,this.series.length-1);
 						handleLoaded(series2);
-
 					}
 				}
 			},
@@ -255,7 +275,6 @@ $(function () {
 					valueDecimals: 2
 				},
 				credits: {enabled :false},
-
 				series: (hasData ? seriesOptions : [] )
 			});
 
@@ -338,11 +357,11 @@ function handleLoaded(series){
 
 			if (record_index != -1){
 			    if (record.name == 'snapshots') {
-			        chart.series[record_index].addPoint([record.datetime, config.default_image_value], true, true);
+			        chart.series[record_index].addPoint([record.datetime, config.default_image_value], true, false);
 			        image_list.push(record.filename);
 			        image_dict[record.datetime] = record.filename;
 			    } else {
-			        chart.series[record_index].addPoint([record.datetime,record.value], true, true);
+			        chart.series[record_index].addPoint([record.datetime,record.value], true, false);
 			    }
 
 			}

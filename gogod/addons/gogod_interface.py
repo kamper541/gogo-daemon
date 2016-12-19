@@ -45,7 +45,10 @@ class GogodInterfacce(threading.Thread):
 
     def send(self, key='', value=''):
         if self.ws and self.ws.keep_running:
-            self.ws.send("%s,%s" % (key, value))
+            try:
+                self.ws.send("%s,%s" % (key, value))
+            except:
+                print "Gogod Interface \t: send message error"
 
     def on_message(self, ws, message):
         print "Gogod Interface \t: msg -> %s" % message

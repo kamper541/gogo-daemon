@@ -119,4 +119,11 @@ function listen_slider() {
 
 
 }
+
+ $(function() {
+    $(this).bind("contextmenu", function(e) {
+        e.preventDefault();
+    });
+ });
+  
 setTimeout(listen_slider,750);

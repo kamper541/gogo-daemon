@@ -12,6 +12,7 @@ import config
 import os, sys
 
 import consolelog
+import rate_limit_checker
 
 _rate_limit_ifttt   = 0.25 #seconds
 APPLICATION_PATH    = os.path.abspath(os.path.dirname(sys.argv[0]))
@@ -23,7 +24,8 @@ class IftttTrigger():
         self.conf               = config.Config() if gogod_config is None else gogod_config
         self.api_key            = self.conf.get_iftt_key()
         self.event_name         = None
-        self.dict_data           = None
+        self.dict_data          = None
+        self.limit_check        = rate_limit_checker.RateLimitChecker(_rate_limit_ifttt)
         consolelog.log(LOG_TITLE, "Created Class")
 
     def getAPIKey(self):
@@ -34,11 +36,12 @@ class IftttTrigger():
         if len(cmd) < 3 :
             return False
 
-        if (time.time() - self.last_handle_time) <  _rate_limit_ifttt:
-            #Flush if it's very high frequency
-            return False
-        self.last_handle_time = time.time()
+        #Flush if it's very high frequency
         event_name = cmd[1]
+
+        if not self.limit_check.is_passed_limit(event_name):
+            return False
+
         dict_data = {}
 
         for i, name in enumerate(cmd):

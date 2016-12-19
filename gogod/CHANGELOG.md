@@ -1,5 +1,12 @@
 # Changelog
 
+### Version 2.1.4 - 2016-12-18
+* Added a new class of rate limit checking.
+* Updated Data Log View to show marker if the number of points is less than 100.
+* Fixed a Data Log issue when add a new point.
+* Fixed addons error.
+* Updated Web UI to prevent right click
+
 ### Version 2.1.3 - 2016-11-28
 * Fixed Telegram Bot issue.
 * Added rate limit to each cmd Packet

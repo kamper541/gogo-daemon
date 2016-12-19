@@ -34,6 +34,7 @@ import webui_function
 import ifttt
 import telegram
 import consolelog
+import rate_limit_checker
 
 # logging.basicConfig(
 #         format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
@@ -84,6 +85,8 @@ class GogoD():
         self.current_show_image = "pet_idle.png"
 
         self.last_handle = {}
+        self.packet_limit_check = rate_limit_checker.RateLimitChecker(_rate_limit_global)
+
         # Auto connect to wifi
         wireless.autoconnect(self.wifi_status_callback)
 
@@ -259,11 +262,10 @@ class GogoD():
             # print "cmd is %s " % cmd
 
             #Except Data Logging Packet and ignore frequent packet
-            if  cmd[1] not in [const.RPI_RECORD_TO_RPI] and cmd[1] in self.last_handle and (time.time() - self.last_handle[cmd[1]]) < _rate_limit_global:
+            if cmd[1] in [const.RPI_SEND_MESSAGE, const.RPI_RECORD_TO_RPI, const.USE_CAMERA]:
+                pass
+            elif self.packet_limit_check.is_passed_limit(cmd[1]):
                 continue
-
-            self.last_handle[cmd[1]] = time.time()
-
 
             if cmd[1] == const.USE_CAMERA:
                 self.camera.use_camera()
@@ -881,7 +883,7 @@ class WSAddonsInterfaceHandler(tornado.websocket.WebSocketHandler):
         ws_addons_clients.append(self)
 
     def on_message(self, message):
-        consolelog.log("Addons Interface", "received %" % message)
+        consolelog.log("Addons Interface", "received %s" % message)
         message = message.split(',')
         if len(message) == 1:
             gogod.sendKeyValueEvent(message[0], '')
