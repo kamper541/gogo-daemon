@@ -264,7 +264,7 @@ class GogoD():
             #Except Data Logging Packet and ignore frequent packet
             if cmd[1] in [const.RPI_SEND_MESSAGE, const.RPI_RECORD_TO_RPI, const.USE_CAMERA]:
                 pass
-            elif self.packet_limit_check.is_passed_limit(cmd[1]):
+            elif not self.packet_limit_check.is_passed_limit(cmd[1]):
                 continue
 
             if cmd[1] == const.USE_CAMERA:
