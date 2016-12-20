@@ -101,7 +101,7 @@ then
         mkdir $gogod_path
 fi
 
-curl -o $temp_path/gogod.tar.gz $gogod_url
+wget $gogod_url -O $temp_path/gogod.tar.gz
 tar -xzf $temp_path/gogod.tar.gz -C $temp_path
 mv $temp_path/gogod-master-* $temp_path/gogod
 
