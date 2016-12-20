@@ -84,7 +84,7 @@ Restart=on-abort
 
 [Install]
 WantedBy=multi-user.target"
-gogod_url="https://github.com/lilcmu/gogo-daemon/archive/master.zip"
+gogod_url="https://github.com/lilcmu/gogo-daemon/archive/master.tar.gz"
 temp_path="/tmp/gogod_install"
 gogod_path="/opt/gogod"
 is_install=true
