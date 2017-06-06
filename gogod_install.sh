@@ -35,6 +35,7 @@ apt-get -qq install python-rpi.gpio -y
 apt-get -qq install python-pycurl -y
 #install pip
 curl https://bootstrap.pypa.io/get-pip.py | python
+apt-get -qq install vlc -y
 apt-get -qq install php5-gd -y
 apt-get -qq install php5 -y
 apt-get -qq install gammu -y
