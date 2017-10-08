@@ -31,9 +31,9 @@ REST API
 	```
 	GET /api/datalog/get/:filename.json
 	```
-Response
+	Response
 	```json
-{
+	{
 	  "data": [
 	    {
 	      "field2": 4,
@@ -49,7 +49,7 @@ Response
 	    }
 	  ],
 	  "result": true
-}
+	}
 	```
 
 	Getting RAW format (like a .csv file) of log values
@@ -57,12 +57,12 @@ Response
 	```
 	GET /api/datalog/get/:filename
 	```
-Response
+	Response
 	```json
 	{
 	  "data": "2016-05-09 18:27:16.000820,174\r\n2016-05-09 18:27:16.672749,175\r\n2016-05-09 18:27:17.503467,174\r\n2016-05-09 18:27:19.006473,174\r\n",
 	  "result": true
-}
+	}
 	```
 	
 
@@ -72,7 +72,7 @@ Response
 	
 	name={:name}&value={:value}
 	```
-Response
+	Response
 	```json
 	{
 	  "result": true
@@ -83,7 +83,7 @@ Response
 	```
 	GET /api/datalog/delete/:filename
 	```
-Response
+	Response
 	```json
 	{
 	  "result": true
@@ -96,12 +96,12 @@ Response
 	```
 	GET /api/addons/list
 	```
-Response
+	Response
 	```json
-{
+	{
 	  "data": ["default.py",  "telegrambot.py"],
 	  "result": true
-}
+	}
 	```
 
 
@@ -118,12 +118,12 @@ Response
 	```
 	GET /api/addons/verify/:filename
 	```
-Response
+	Response
 	```json
-{
+	{
 	  "result": true,
 	  "error": ""
-}
+	}
 	```
 
  - **Getting activation status verification each file**
@@ -131,23 +131,23 @@ Response
 	```
 	GET /api/addons/setting
 	```
-Response
+	Response
 	```json
-{
-      "data": {
-        "default.py": 
+	{
+          "data": {
+            "default.py": 
 	        {
 	           "active": false,
 	           "verify": true
 	         },
-		"telegrambot.py": 
-            {
-               "active": false,
-               "verify": true
+	    "telegrambot.py": 
+                {
+                   "active": false,
+                   "verify": true
 	        }
-      },
+          },
 	  "result": true
-}
+	}
 	```
 
  - **Active or Deactive the add-ons**
@@ -162,7 +162,7 @@ Response
 	```
 	Response : return the *activation or deactivation status* and *runnnig status*
 	```json
-{
+	{
 	  "start": {
 	    "result": true,
 	    "error": ""
@@ -186,10 +186,10 @@ Response
 	
 	
 	```
-Response : 	return the *upload status* and *error message*
+	Response : 	return the *upload status* and *error message*
 	```json
-{
+	{
 	  "message": "file_exists",
 	  "result": false
-}
+	}
 	```
