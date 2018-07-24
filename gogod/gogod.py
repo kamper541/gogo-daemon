@@ -50,7 +50,6 @@ class GogoD():
 
         self.camera_status = 0
         self.perform_face_detection = 0
-        self.face_found = 0
 
         self.TX_BUFFER = [0] * const.TX_REGISTER_SIZE
         self.TX_BUFFER[const.REG_PACKET_TYPE] = 2  # this is the packet type ID
@@ -62,6 +61,8 @@ class GogoD():
 
         self.pistat = pistat.PiStats()
         self.camera = camera.CameraControl()
+
+        self.counter_serial = 0
 
         self.conf = config.Config()
 
@@ -86,6 +87,7 @@ class GogoD():
 
         self.last_handle = {}
         self.packet_limit_check = rate_limit_checker.RateLimitChecker(_rate_limit_global)
+        self.last_loop_time = time.time()
 
         # Auto connect to wifi
         wireless.autoconnect(self.wifi_status_callback)
@@ -179,15 +181,240 @@ class GogoD():
         for client in ws_addons_clients:
             client.write_message("%s,%s" % (key, value))
 
-    def update(self):
+    def process_cmd(self, text_cmd):
 
-        # =============================================
-        self.TX_BUFFER[const.REG_CAMERA_FLAGS] = 0
-        if self.camera.find_face_is_on():
-            if self.camera.face_found():
-                self.TX_BUFFER[const.REG_CAMERA_FLAGS] |= 1 << 2
-                consolelog.log(LOG_TITLE, "Found a face")
+        if len(text_cmd) == 0:
+            # break
+            return
 
+        if len(text_cmd) < 2:
+            consolelog.log(LOG_TITLE, "cmd is too short")
+            # break
+            return
+
+        if ord(text_cmd[0]) != 5:
+            # print "cmd header is wrong"
+            # print ord(text_cmd[0])
+            # break
+            return
+
+        cmd = [ord(c) for c in text_cmd]
+        # print "cmd is %s " % cmd
+
+        #Except Data Logging Packet and ignore frequent packet
+        # if cmd[1] in [const.RPI_SHUTDOWN, const.RPI_REBOOT, const.RPI_SEND_MESSAGE, const.RPI_RECORD_TO_RPI, const.USE_CAMERA, const.START_FIND_FACE, const.STOP_FIND_FACE]:
+        #     pass
+        # elif not self.packet_limit_check.is_passed_limit(cmd[1]):
+        #     print 'time limit'
+        #     # continue
+        #     return
+
+        if not self.packet_limit_check.is_passed_limit(cmd[1]) and cmd[1] in [const.TAKE_SNAP_SHOT, const.TAKE_PREVIEW_IMAGE, const.SEND_MAIL, const.PLAY_SOUND, const.SHOW_IMAGE, const.EMAIL_SEND, const.SEND_SMS]:
+            print 'time limit'
+            # continue
+            return
+
+        if cmd[1] == const.USE_CAMERA:
+            self.camera.use_camera()
+            if self.camera.camera_is_on():
+                consolelog.log(LOG_TITLE, "Camera is on")
+            else:
+                consolelog.log(LOG_TITLE, "Camera cannot be turned on")
+
+        elif cmd[1] == const.CLOSE_CAMERA:
+            self.camera.close_camera()
+            if not self.camera.camera_is_on():
+                consolelog.log(LOG_TITLE, "Camera is off")
+            else:
+                consolelog.log(LOG_TITLE, "Cannot turn off camera")
+
+        elif cmd[1] == const.START_FIND_FACE:
+            self.camera.start_find_face()
+            if self.camera.find_face_is_on():
+                consolelog.log(LOG_TITLE, "Find Face is ON")
+            else:
+                consolelog.log(LOG_TITLE, "Cannot start Find Face")
+
+        elif cmd[1] == const.STOP_FIND_FACE:
+            self.camera.stop_find_face()
+            if not self.camera.find_face_is_on():
+                consolelog.log(LOG_TITLE, "Find Face is OFF")
+            else:
+                consolelog.log(LOG_TITLE, "Cannot turn off find face")
+
+        elif cmd[1] == const.TAKE_SNAP_SHOT:
+            image_name = self.camera.take_snapshot()
+
+            if image_name is not None:
+                # Broadcast to WS
+                packet = {
+                    "event": "datalog",
+                    "name": "snapshots",
+                    "datetime": self.data_logger.get_datetime_str(),
+                    "filename": image_name
+                }
+                self.broadcast_websocket("%s,%s" % ("datalog", json.dumps(packet)))
+                consolelog.log(LOG_TITLE, "Snap shot taken")
+
+        elif cmd[1] == const.TAKE_PREVIEW_IMAGE:
+            threading.Thread(target=self.camera.take_preview_image).start()
+            # consolelog.log(LOG_TITLE, "preview shot taken")
+
+        elif cmd[1] == const.SEND_MAIL:
+            arg = ''.join(chr(i) for i in cmd[2:]).split(',')
+            param = EmailParam()
+            param.recipient = arg[0]
+            param.subject = arg[1]
+            param.body = arg[2]
+            consolelog.log("Email", "send to %s" % (param.recipient))
+            mail.send(self.mail_status_callback, param)
+
+        elif cmd[1] == const.PLAY_SOUND:
+            # [::-1] reverses the character order in the string
+            file_name = cmd[2:]
+            # convert list of ascii values to string
+            file_name = ''.join(chr(i) for i in file_name)
+
+            file_name = self.conf.auto_filename_sound(file_name)
+
+            consolelog.log(LOG_TITLE, "Play sound %s" % file_name)
+            self.broadcast_websocket("play_sound," + file_name)
+            if os.path.exists(os.path.join(MEDIA_PATH, file_name)):
+                audio.play_sound(os.path.join(MEDIA_PATH, file_name))
+
+        elif cmd[1] == const.STOP_SOUND:
+            consolelog.log(LOG_TITLE, "Stop sound")
+            audio.stop_sound()
+
+        elif cmd[1] == const.SHOW_IMAGE:
+            image_filename = ''.join(chr(i) for i in cmd[2:])
+            consolelog.log(LOG_TITLE, "show image %s" % image_filename)
+            image_filename = self.conf.auto_filename_image(image_filename)
+            self.current_show_image = image_filename
+            self.broadcast_websocket("set_image," + image_filename)
+
+
+        elif cmd[1] == const.WIFI_CONNECT:
+            ssid, password = ''.join(chr(i) for i in cmd[2:]).split(',')
+
+            if password == '':
+                password = None
+
+            wireless.connect(self.wifi_status_callback, ssid, password)
+
+        elif cmd[1] == const.WIFI_DISCONNECT:
+            wireless.disconnect(self.wifi_status_callback)
+
+        elif cmd[1] == const.EMAIL_CONFIG:
+            consolelog.log("Email", "Start Config")
+            arg = ''.join(chr(i) for i in cmd[2:]).split(',')
+            param = EmailParam()
+            param.username = arg[0]
+            param.password = arg[1]
+            mail.save_config(self.mail_status_callback, param)
+
+        elif cmd[1] == const.EMAIL_SEND:
+            arg = ''.join(chr(i) for i in cmd[2:]).split(',')
+            param = EmailParam()
+            param.recipient = arg[0]
+            param.subject = arg[1]
+            param.body = arg[2]
+            consolelog.log("Email", "send to %s" % (param.recipient))
+            mail.send(self.mail_status_callback, param)
+
+        elif cmd[1] == const.SEND_SMS:
+            arg = ''.join(chr(i) for i in cmd[2:]).split(',')
+            sms_number = arg[0]
+            sms_message = arg[1]
+            consolelog.log("SMS", "send to %s" % (sms_number))
+            sms.send(self.sms_status_callback, sms_number, sms_message)
+            #self.broadcast_to_interface(sms_number, sms_message)
+
+        elif cmd[1] == const.RPI_REBOOT:
+            consolelog.log(LOG_TITLE, "Reboot")
+            rpi_system.rpi_reboot()
+
+        elif cmd[1] == const.RPI_SHUTDOWN:
+            consolelog.log(LOG_TITLE, "Shutdown")
+            rpi_system.rpi_shutdown()
+
+        elif cmd[1] == const.RPI_SET_TX_BUFFER:
+            consolelog.log(LOG_TITLE, "setting tx buffer[%d] to %d " % (cmd[2], cmd[3]))
+            self.TX_BUFFER[cmd[2]] = cmd[3]
+
+        elif cmd[1] == const.RPI_NEWRECORDFILE:
+            file_name = ''.join(chr(i) for i in cmd[2:])
+            consolelog.log("Logging", "creating new log file for %s" % file_name)
+            self.data_logger.new_log_file(file_name)
+            # new
+            #loggerdb.truncate(file_name)
+
+        elif cmd[1] == const.RPI_RECORD_TO_RPI:
+            # i = 2
+            # file_name = ''
+            # for c in cmd[2:]:
+            #     # loop until we find a comma
+            #     if c == ord(','):
+            #         break
+            #     i += 1
+            #     file_name += chr(c)
+            #
+            # value = (cmd[i+1] << 8) + value[i+2]
+            file_name, value = text_cmd[2:].split(',')
+            # value = (ord(value[0]) << 8) + (ord(value[1])) # high byte + low byte
+            # print "Logging : recording %d as %s" % (value, file_name)
+
+            self.handle_data_logging(file_name, value)
+
+
+        elif cmd[1] == const.RPI_SHOW_LOG_PLOT:
+            file_names, n = text_cmd[2:].split(';')  # n = number of latest points to show
+            n = (ord(n[0]) << 8) + (ord(n[1]))  # high byte + low byte
+            consolelog.log(LOG_TITLE, "Plotting %d latest points for %s" % (n, file_names))
+            self.data_logger.plot(n, file_names)
+
+            self.broadcast_websocket("set_image," + "plot.png")
+
+        elif cmd[1] == const.RPI_USE_RFID:
+
+            consolelog.log("RFID", " Use RFID")
+            rfid.useRFID(self.rfid_status_callback, self.rfid_read_tag_callback)
+
+        elif cmd[1] == const.RPI_CLOSE_RFID:
+            consolelog.log("RFID", "Close RFID")
+            rfid.closeRFID()
+        elif cmd[1] == const.RPI_RFID_BEEP:
+            rfid.beep()
+        elif cmd[1] == const.RPI_WRITE_RFID:
+            rfid.write(cmd[2])
+        elif cmd[1] == const.RPI_RFID_TAG_FOUND or cmd[1] == const.RPI_RFID_READER_FOUND:
+            rfid.updateStatus()
+        elif cmd[1] == const.RPI_SAY:
+            phrase = ''.join(chr(i) for i in cmd[2:])
+            if not self.text2speech.saying_flag:
+                self.broadcast_websocket("say," + phrase)
+                self.text2speech.say(phrase)
+
+        elif cmd[1] == const.RPI_SEND_MESSAGE:
+            arg = ''.join(chr(i) for i in cmd[2:]).split(',')
+            topic = arg[0]
+            message = arg[1]
+
+            consolelog.log("Message", "%s" % (arg))
+
+            if not self.packet_limit_check.is_passed_custom(topic, 0.25):
+                return
+
+            if topic == "@ifttt":
+                self.ifttt.trigger(arg)
+            elif topic == "@telegram":
+                message = ','.join(str(x) for x in arg[1:])
+                self.telegram_bot.handle_gogo_message(message)
+            else:
+                self.broadcast_to_interface(topic, message)
+
+        
+    def do_report(self):
         # =============================================
         # update Raspberry Pi revision
         try:
@@ -239,236 +466,50 @@ class GogoD():
             self.TX_BUFFER[const.REG_WLAN_IP_3] = 0
             self.TX_BUFFER[const.REG_WLAN_IP_4] = 0
 
+        self.TX_BUFFER[const.REG_CAMERA_FLAGS] = 0
         # =============================================
-        self.TX_BUFFER[const.REG_CAMERA_FLAGS] = self.TX_BUFFER[const.REG_CAMERA_FLAGS] | self.camera.camera_is_on() | (
-        self.camera.find_face_is_on() << 1)
-
-        while True:
-
-            text_cmd = self.ser.readline().rstrip()
-            if len(text_cmd) == 0:
-                break
-
-            if len(text_cmd) < 2:
-                consolelog.log(LOG_TITLE, "cmd is too short")
-                break
-
-            if ord(text_cmd[0]) != 5:
-                # print "cmd header is wrong"
-                # print ord(text_cmd[0])
-                break
-
-            cmd = [ord(c) for c in text_cmd]
-            # print "cmd is %s " % cmd
-
-            #Except Data Logging Packet and ignore frequent packet
-            if cmd[1] in [const.RPI_SEND_MESSAGE, const.RPI_RECORD_TO_RPI, const.USE_CAMERA]:
-                pass
-            elif not self.packet_limit_check.is_passed_limit(cmd[1]):
-                continue
-
-            if cmd[1] == const.USE_CAMERA:
-                self.camera.use_camera()
-                if self.camera.camera_is_on():
-                    consolelog.log(LOG_TITLE, "Camera is on")
-                else:
-                    consolelog.log(LOG_TITLE, "Camera cannot be turned on")
-
-            elif cmd[1] == const.CLOSE_CAMERA:
-                self.camera.close_camera()
-                if not self.camera.camera_is_on():
-                    consolelog.log(LOG_TITLE, "Camera is off")
-                else:
-                    consolelog.log(LOG_TITLE, "Cannot turn off camera")
-
-            elif cmd[1] == const.START_FIND_FACE:
-                self.camera.start_find_face()
-                if self.camera.find_face_is_on():
-                    consolelog.log(LOG_TITLE, "Find Face is ON")
-                else:
-                    consolelog.log(LOG_TITLE, "Cannot start Find Face")
-
-            elif cmd[1] == const.STOP_FIND_FACE:
-                self.camera.stop_find_face()
-                if not self.camera.find_face_is_on():
-                    consolelog.log(LOG_TITLE, "Find Face is OFF")
-                else:
-                    consolelog.log(LOG_TITLE, "Cannot turn off find face")
-
-            elif cmd[1] == const.TAKE_SNAP_SHOT:
-                image_name = self.camera.take_snapshot()
-
-                if image_name is not None:
-                    # Broadcast to WS
-                    packet = {
-                        "event": "datalog",
-                        "name": "snapshots",
-                        "datetime": self.data_logger.get_datetime_str(),
-                        "filename": image_name
-                    }
-                    self.broadcast_websocket("%s,%s" % ("datalog", json.dumps(packet)))
-                    consolelog.log(LOG_TITLE, "Snap shot taken")
-
-            elif cmd[1] == const.TAKE_PREVIEW_IMAGE:
-                self.camera.take_preview_image()
-                consolelog.log(LOG_TITLE, "preview shot taken")
-
-            elif cmd[1] == const.SEND_MAIL:
-                arg = ''.join(chr(i) for i in cmd[2:]).split(',')
-                param = EmailParam()
-                param.recipient = arg[0]
-                param.subject = arg[1]
-                param.body = arg[2]
-                consolelog.log("Email", "send to %s" % (param.recipient))
-                mail.send(self.mail_status_callback, param)
-
-            elif cmd[1] == const.PLAY_SOUND:
-                # [::-1] reverses the character order in the string
-                file_name = cmd[2:]
-                # convert list of ascii values to string
-                file_name = ''.join(chr(i) for i in file_name)
-
-                file_name = self.conf.auto_filename_sound(file_name)
-     
-                consolelog.log(LOG_TITLE, "Play sound %s" % file_name)
-                self.broadcast_websocket("play_sound," + file_name)
-                if os.path.exists(os.path.join(MEDIA_PATH, file_name)):
-                    audio.play_sound(os.path.join(MEDIA_PATH, file_name))
-
-            elif cmd[1] == const.STOP_SOUND:
-                consolelog.log(LOG_TITLE, "Stop sound")
-                audio.stop_sound()
-
-            elif cmd[1] == const.SHOW_IMAGE:
-                image_filename = ''.join(chr(i) for i in cmd[2:])
-                consolelog.log(LOG_TITLE, "show image %s" % image_filename)
-                image_filename = self.conf.auto_filename_image(image_filename)
-                self.current_show_image = image_filename
-                self.broadcast_websocket("set_image," + image_filename)
+        self.TX_BUFFER[const.REG_CAMERA_FLAGS] = 0
+        if self.camera.find_face_is_on():
+            if self.camera.found_face():
+                self.TX_BUFFER[const.REG_CAMERA_FLAGS] |= 1 << 2
+                consolelog.log(LOG_TITLE, "Found a face")
 
 
-            elif cmd[1] == const.WIFI_CONNECT:
-                ssid, password = ''.join(chr(i) for i in cmd[2:]).split(',')
+        # =============================================
+        self.TX_BUFFER[const.REG_CAMERA_FLAGS] = self.TX_BUFFER[const.REG_CAMERA_FLAGS] | self.camera.camera_is_on() | (self.camera.find_face_is_on() << 1)
 
-                if password == '':
-                    password = None
+        self.send_buffer(self.TX_BUFFER)
+                
+    def update(self):
 
-                wireless.connect(self.wifi_status_callback, ssid, password)
+        # self.counter_serial += 1
+        # do_report = False
 
-            elif cmd[1] == const.WIFI_DISCONNECT:
-                wireless.disconnect(self.wifi_status_callback)
+        # if (self.counter_serial > 9):
+        #     do_report = True
+        #     self.counter_serial = 0
+        #     print 'report'
 
-            elif cmd[1] == const.EMAIL_CONFIG:
-                consolelog.log("Email", "Start Config")
-                arg = ''.join(chr(i) for i in cmd[2:]).split(',')
-                param = EmailParam()
-                param.username = arg[0]
-                param.password = arg[1]
-                mail.save_config(self.mail_status_callback, param)
+        #     self.do_report()
 
-            elif cmd[1] == const.EMAIL_SEND:
-                arg = ''.join(chr(i) for i in cmd[2:]).split(',')
-                param = EmailParam()
-                param.recipient = arg[0]
-                param.subject = arg[1]
-                param.body = arg[2]
-                consolelog.log("Email", "send to %s" % (param.recipient))
-                mail.send(self.mail_status_callback, param)
+        # if True:
 
-            elif cmd[1] == const.SEND_SMS:
-                arg = ''.join(chr(i) for i in cmd[2:]).split(',')
-                sms_number = arg[0]
-                sms_message = arg[1]
-                consolelog.log("SMS", "send to %s" % (sms_number))
-                sms.send(self.sms_status_callback, sms_number, sms_message)
-                #self.broadcast_to_interface(sms_number, sms_message)
-
-            elif cmd[1] == const.RPI_REBOOT:
-                consolelog.log(LOG_TITLE, "Reboot")
-                rpi_system.rpi_reboot()
-
-            elif cmd[1] == const.RPI_SHUTDOWN:
-                consolelog.log(LOG_TITLE, "Shutdown")
-                rpi_system.rpi_shutdown()
-
-            elif cmd[1] == const.RPI_SET_TX_BUFFER:
-                consolelog.log(LOG_TITLE, "setting tx buffer[%d] to %d " % (cmd[2], cmd[3]))
-                self.TX_BUFFER[cmd[2]] = cmd[3]
-
-            elif cmd[1] == const.RPI_NEWRECORDFILE:
-                file_name = ''.join(chr(i) for i in cmd[2:])
-                consolelog.log("Logging", "creating new log file for %s" % file_name)
-                self.data_logger.new_log_file(file_name)
-                # new
-                #loggerdb.truncate(file_name)
-
-            elif cmd[1] == const.RPI_RECORD_TO_RPI:
-                # i = 2
-                # file_name = ''
-                # for c in cmd[2:]:
-                #     # loop until we find a comma
-                #     if c == ord(','):
-                #         break
-                #     i += 1
-                #     file_name += chr(c)
-                #
-                # value = (cmd[i+1] << 8) + value[i+2]
-
-                file_name, value = text_cmd[2:].split(',')
-                # value = (ord(value[0]) << 8) + (ord(value[1])) # high byte + low byte
-                # print "Logging : recording %d as %s" % (value, file_name)
-
-                self.handle_data_logging(file_name, value)
-
-
-            elif cmd[1] == const.RPI_SHOW_LOG_PLOT:
-                file_names, n = text_cmd[2:].split(';')  # n = number of latest points to show
-                n = (ord(n[0]) << 8) + (ord(n[1]))  # high byte + low byte
-                consolelog.log(LOG_TITLE, "Plotting %d latest points for %s" % (n, file_names))
-                self.data_logger.plot(n, file_names)
-
-                self.broadcast_websocket("set_image," + "plot.png")
-
-            elif cmd[1] == const.RPI_USE_RFID:
-
-                consolelog.log("RFID", " Use RFID")
-                rfid.useRFID(self.rfid_status_callback, self.rfid_read_tag_callback)
-
-            elif cmd[1] == const.RPI_CLOSE_RFID:
-                consolelog.log("RFID", "Close RFID")
-                rfid.closeRFID()
-            elif cmd[1] == const.RPI_RFID_BEEP:
-                rfid.beep()
-            elif cmd[1] == const.RPI_WRITE_RFID:
-                rfid.write(cmd[2])
-            elif cmd[1] == const.RPI_RFID_TAG_FOUND or cmd[1] == const.RPI_RFID_READER_FOUND:
-                rfid.updateStatus()
-            elif cmd[1] == const.RPI_SAY:
-                phrase = ''.join(chr(i) for i in cmd[2:])
-                if not self.text2speech.saying_flag:
-                    self.broadcast_websocket("say," + phrase)
-                    self.text2speech.say(phrase)
-
-            elif cmd[1] == const.RPI_SEND_MESSAGE:
-                arg = ''.join(chr(i) for i in cmd[2:]).split(',')
-                topic = arg[0]
-                message = arg[1]
-
-                consolelog.log("Message", "%s" % (arg))
-
-                if topic == "@ifttt":
-                    self.ifttt.trigger(arg)
-                elif topic == "@telegram":
-                    message = ','.join(str(x) for x in arg[1:])
-                    self.telegram_bot.handle_gogo_message(message)
-                else:
-                    self.broadcast_to_interface(topic, message)
+        #     while True:
+        text_cmd = self.ser.readline().rstrip()
+        self.process_cmd(text_cmd)
+        if time.time() - self.last_loop_time > 0.25:
+            self.last_loop_time = time.time()
+            self.do_report()
+            # t= Thread(target=self.process_cmd, args=(text_cmd,))
+            # t.start()
 
         # send the updated TX_BUFFER to the gogo board
         # this transmission needs to be at the end of the loop
         # so that any commands that have modified the buffer
         # value can act on the buffer before it is sent
-        self.send_buffer(self.TX_BUFFER)
+        # if do_report:
+        #     print 'report'
+            
 
     def handle_data_logging(self, name=None, value=None):
         value = self.data_logger.validate_number(value)
@@ -917,5 +958,5 @@ application = tornado.web.Application([
 if __name__ == "__main__":
     gogod = GogoD()
     application.listen(8888, '0.0.0.0')  # '0.0.0.0' prevents error when booted with no available IP assigned
-    tornado.ioloop.PeriodicCallback(gogod.update, 500).start()
+    tornado.ioloop.PeriodicCallback(gogod.update, 20).start()
     tornado.ioloop.IOLoop.instance().start()

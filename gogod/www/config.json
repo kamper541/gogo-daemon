@@ -1,6 +1,6 @@
 {
-  "gogod_version" : "2.1.4",
-  "gogod_updated" : "2016-12-18",
+  "gogod_version" : "2.1.8",
+  "gogod_updated" : "2018-07-22",
   "image_size": "110",
   "element": [
     {
@@ -25,13 +25,6 @@
       "icon": "mdi-action-assessment"
     },
     {
-      "url": "/www/soundrecorder/",
-      "image": "gogo_sound_recorder.png",
-      "label": "Sound Recording",
-      "color": "#f44336",
-      "icon": "mdi-av-mic"
-    },
-    {
       "url": "/www/webui/",
       "image": "gogo_html.png",
       "label": "Web UI",
@@ -39,18 +32,27 @@
       "icon": "mdi-editor-insert-drive-file"
     },
     {
-      "url": "/www/SpeechRecognition/",
-      "image": "gogo_speech_recognition.png",
-      "label": "Speech Recognition",
-      "color": "#38515f",
-      "icon": "mdi-av-hearing"
-    },
-    {
       "url": "/www/addons/",
       "image": "gogo_addons.png",
       "label": "Add-ons",
       "color": "#ff9642",
       "icon": "mdi-action-extension"
+    }
+  ],
+  "element_bak": [
+    {
+      "url": "/www/soundrecorder/",
+      "image": "gogo_sound_recorder.png",
+      "label": "Sound Recording",
+      "color": "#f44336",
+      "icon": "mdi-av-mic"
+    },
+    {
+      "url": "/www/SpeechRecognition/",
+      "image": "gogo_speech_recognition.png",
+      "label": "Speech Recognition",
+      "color": "#38515f",
+      "icon": "mdi-av-hearing"
     }
   ]
 }

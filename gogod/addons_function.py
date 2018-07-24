@@ -20,7 +20,7 @@ class AddOnsManager():
         consolelog.log(LOG_TITLE, "init")
         self.conf = config.Config() if gogod_config is None else gogod_config
         self.running_list = {}
-        self.reserved_name = ['__init__.py','checker.py','gogod_interface.py','example.py']
+        self.reserved_name = ['__init__.py','checker.py','gogod_interface.py','example.py','example_with_variable.py']
         self.autorun()
 
     def list_files(self):
@@ -33,7 +33,7 @@ class AddOnsManager():
                 consolelog.log(LOG_TITLE, 'found %s' % (module_name))
                 # module = __import__(module_name)
                 library_list.append("%s%s" % (module_name, ext))
-        return list(set(library_list) - ( set(self.reserved_name) - set(['example.py']) ) )
+        return list(set(library_list) - ( set(self.reserved_name) - set(['example.py','example_with_variable.py']) ) )
 
     def load_config(self):
 

@@ -374,7 +374,7 @@
                 //.append('<p class="centerImage"><img src="src/css/images/projectExportDivider.png"/></p>')
                 //.append('<a id="exportProj">export</a>')
                 .append('<p class="centerImage"><img src="src/css/images/projectExportDivider.png"/></p>')
-                .append('<a id="exportProjCust">Export to GoGo</a>')
+                .append('<a id="exportProjCust">Save</a>')
                 //.append('<p class="centerImage"><img src="src/css/images/projectExportDivider.png"/></p>')
                 //.append('<a id="about">About</a>')
                 .appendTo(this.ui.extras);

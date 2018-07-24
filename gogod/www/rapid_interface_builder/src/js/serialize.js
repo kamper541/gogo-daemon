@@ -749,7 +749,7 @@ $(function () {
             hide: { effect: "puff" }, 
             width: 600,
             buttons: {
-                "Export": function() { uploadToGoGo(ribFile) },
+                "Save": function() { uploadToGoGo(ribFile) },
                 Cancel: function() {
                   $( "#dialog-form" ).dialog( "close" );
                 }

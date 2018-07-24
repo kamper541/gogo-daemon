@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no, minimal-ui">
@@ -14,56 +15,80 @@
   <link href="/www/bootstrap-material-design/dist/css/bootstrap.min.css" rel="stylesheet">
   <link href="/www/bootstrap-material-design/dist/css/material-fullpalette.min.css" rel="stylesheet">
 
-<!--[if lt IE 9]>
+  <!--[if lt IE 9]>
 <script src="https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
 <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
 <![endif]-->
 
-<style type="text/css">
-.vertical-center {
-  min-height: 100%;  /* Fallback for browsers do NOT support vh unit */
-  min-height: 100vh; /* These two lines are counted as one :-)       */
+  <style type="text/css">
+    .vertical-center {
+      min-height: 100%;
+      /* Fallback for browsers do NOT support vh unit */
+      min-height: 100vh;
+      /* These two lines are counted as one :-)       */
+      display: flex;
+      align-items: center;
+    }
 
-display: flex;
-align-items: center;
-}
-body {
-  background: #e4e4e4;
-}
-.top-buffer { margin-top:12px; }
+    body {
+      background: #e4e4e4;
+    }
 
-.div_hover:hover { background-color: #EEE; }
-.double {
-  -ms-transform:scale(2.0,2.0); /* IE 9 */
-  -moz-transform:scale(2.0,2.0); /* Firefox */
-  -webkit-transform:scale(2.0,2.0); /* Safari and Chrome */
-  -o-transform:scale(2.0,2.0); /* Opera */
-}
-a:hover{
-  text-decoration: none;
-}
-.version_show{
-  width: 300px;
-  height: 30px;
-  position: absolute;
-  top: 1;
-  left: 1;
-  z-index: 10;
-}
-</style>
+    .top-buffer {
+      margin-top: 12px;
+    }
+
+    .div_hover:hover {
+      background-color: #EEE;
+    }
+
+    .double {
+      -ms-transform: scale(2.0, 2.0);
+      /* IE 9 */
+      -moz-transform: scale(2.0, 2.0);
+      /* Firefox */
+      -webkit-transform: scale(2.0, 2.0);
+      /* Safari and Chrome */
+      -o-transform: scale(2.0, 2.0);
+      /* Opera */
+    }
+
+    a:hover {
+      text-decoration: none;
+    }
+
+    .version_show {
+      width: 300px;
+      height: 30px;
+      position: absolute;
+      top: 1;
+      left: 1;
+      z-index: 10;
+    }
+
+    .text-version {
+      color: #b7b7b7;
+    }
+
+    .float {
+      position: fixed; bottom: 12px; right: 25px;  z-index: 20;
+    }
+  </style>
 </head>
+
 <body>
-<!-- Marketing messaging and featurettes
+  <!-- Marketing messaging and featurettes
   ================================================== -->
   <!-- Wrap the rest of the page in another container to center all the content. -->
   <div class="navbar navbar-info navbar-fixed-top shadow-z-1 hidden-lg hidden-md">
     <div class="navbar-header">
-      <a class="navbar-brand" href="javascript:void(0)"><i class="mdi-action-home"></i> GoGo Home Screen</a>
+      <a class="navbar-brand" href="javascript:void(0)">
+        <i class="mdi-action-home"></i> GoGo Home Screen</a>
     </div>
   </div>
   <div class="hidden-md hidden-lg" style="height:55px;"></div>
   <div class="version_show">
-    <p class="text-muted" style="padding:5px;">version {{ config_data['gogod_version'] }}, Updated {{ config_data['gogod_updated'] }}</p>
+    <p class="text-version" style="padding:5px;">version {{ config_data['gogod_version'] }}, Updated {{ config_data['gogod_updated'] }}</p>
   </div>
   <div class="vertical-center">
     <div class="container">
@@ -72,31 +97,32 @@ a:hover{
       <div class="row">
         {% for entry in config_data['element'] %}
 
-          <div class="col-lg-3 col-sm-6 text-center div_hover"><br>
-            {% if entry['label'] == 'File Manager' %}
-              {% set entry['url'] = config_data['hostname']+entry['url'] %}
-            {% end %}
-            <a href="{{ entry['url'] }}" target="_blank">
-              <img class="img-circle" src="/www/dist/icon/{{ entry['image'] }}" alt="{{ entry['label'] }}"
-              width="{{ config_data['image_size'] }}" height="{{ config_data['image_size'] }}">
-              <h3 style="color:{{ entry['color'] }};">{{ entry['label'] }}</h3>
-            </a>
-          </div><!-- /.col-lg-4 -->
+        <div class="col-lg-3 col-sm-6 text-center div_hover">
+          <br> {% if entry['label'] == 'File Manager' %} {% set entry['url'] = config_data['hostname']+entry['url'] %} {% end
+          %}
+          <a href="{{ entry['url'] }}" target="_blank">
+            <img class="img-circle" src="/www/dist/icon/{{ entry['image'] }}" alt="{{ entry['label'] }}" width="{{ config_data['image_size'] }}"
+              height="{{ config_data['image_size'] }}">
+            <h3 style="color:{{ entry['color'] }};">{{ entry['label'] }}</h3>
+          </a>
+        </div>
+        <!-- /.col-lg-4 -->
 
         {% end %}
-</div><!-- /.row -->
-</div><!-- /.container -->
-</div>
-<div class="" style="position: fixed; bottom: 12px; right: 25px;  z-index: 20;" >
-  <div class="row">
-    <a href="/www/setting.html" class="btn btn-default btn-fab btn-raised mdi-action-settings" alt="Setting" title="Setting"
-    data-toggle="tooltip" data-placement="left" title="" data-original-title="Setting"></a>
+      </div>
+      <!-- /.row -->
+    </div>
+    <!-- /.container -->
   </div>
-  <div class="row top-buffer">
-    <a href="javascript:void(0)" class="btn btn-default btn-fab btn-raised mdi-communication-stay-current-portrait"
-    data-toggle="modal" data-target="#dialog-qrcode" title="QR Code"
-    ata-toggle="tooltip" data-placement="left" title="" data-original-title="QR Code"
-    ></a></div>
+  <div class="float" style="">
+    <div class="row">
+      <a href="/www/setting.html" class="btn btn-default btn-fab btn-raised mdi-action-settings" alt="Setting" title="Setting"
+        data-toggle="tooltip" data-placement="left" title="" data-original-title="Setting"></a>
+    </div>
+    <div class="row top-buffer">
+      <a href="javascript:void(0)" class="btn btn-default btn-fab btn-raised mdi-communication-stay-current-portrait" data-toggle="modal"
+        data-target="#dialog-qrcode" title="QR Code" ata-toggle="tooltip" data-placement="left" title="" data-original-title="QR Code"></a>
+    </div>
 
   </div>
 
@@ -119,7 +145,7 @@ a:hover{
     </div>
   </div>
 
-<!-- Bootstrap core JavaScript
+  <!-- Bootstrap core JavaScript
   ================================================== -->
   <!-- Placed at the end of the document so the pages load faster -->
   <script src="/www/bootstrap-material-design/dist/jquery-1.11.min.js"></script>
@@ -132,9 +158,10 @@ a:hover{
   <script type="text/javascript">
     $('#qrcode').qrcode("{{ config_data['hostname_port'] }}");
 
-    function openURL(url){
+    function openURL(url) {
       window.open(url, '_blank');
     }
   </script>
 </body>
+
 </html>

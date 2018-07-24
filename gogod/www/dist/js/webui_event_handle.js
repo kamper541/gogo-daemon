@@ -123,7 +123,46 @@ function listen_slider() {
  $(function() {
     $(this).bind("contextmenu", function(e) {
         e.preventDefault();
-    });
- });
+	});
+
+	$.getScript("/www/bower_components/webui-popover/dist/jquery.webui-popover.min.js");
+	$.getScript("/www/dist/js/jquery.qrcode.js");
+	$.getScript("/www/dist/js/qrcode.js");
+
+	$('body').append('<link rel="stylesheet" type="text/css" href="/www/bower_components/webui-popover/dist/jquery.webui-popover.css">');
+
+	var buttonHtml = '  <div class="float" style="position: fixed; bottom: 12px; right: 25px;  z-index: 20;">\
+	<div class="row top-buffer">\
+	<span class="popover-wrapper">\
+	<a id="qrcode-btn" href="javascript:;" data-role="popover" data-target="example-popover"><img src="/www/dist/icon/icon-qr.png"></a>\
+	<div class="webui-popover-content">\
+	<div id="qrcode-image"></div>\
+	</div>\
+	</span>\
+	</div>\
+	</div>';
+
+	var viewHtml = '<meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">';
+
+	$('body').append(buttonHtml);
+	$('html').append(viewHtml);
+
+	document.addEventListener('gesturestart', function (e) {
+		e.preventDefault();
+	});
+
+	document.addEventListener('touchmove', function(event) {
+        event = event.originalEvent || event;
+        if (event.scale !== 1) {
+           event.preventDefault();
+        }
+    }, false);
+
+	setTimeout(function(){
+		$('#qrcode-image').qrcode(window.location.href);
+		$('#qrcode-btn').webuiPopover({width:284,height:265});
+	},500)
+
+});
   
 setTimeout(listen_slider,750);

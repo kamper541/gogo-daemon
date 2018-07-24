@@ -1,5 +1,13 @@
 # Changelog
 
+### Version 2.1.8 - 2017-06-21
+* Improved performance
+* Reduced bugs
+* Added features like QR Code on webUI 
+
+### Version 2.1.5 - 2017-06-21
+* Updated IFTTT link in setting page.
+
 ### Version 2.1.4 - 2016-12-18
 * Added a new class of rate limit checking.
 * Updated Data Log View to show marker if the number of points is less than 100.

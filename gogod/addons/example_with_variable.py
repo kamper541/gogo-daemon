@@ -10,7 +10,9 @@ def on_message(title, message):
 def main():
 
     # An example to getting a variable from storage
-    count = 1
+    count = app.get_variable('variable_count')
+    if count is None:
+        count = 1
 
     while True:
         time.sleep(5)
@@ -19,6 +21,9 @@ def main():
         # An example to sending a topic/message to GoGo Board
         app.send("count", count)
         count += 1
+
+        # An example to saving a variable to storage
+        app.save_variable('variable_count', count)
 
 
 app = GogodInterfacce(on_message, main)

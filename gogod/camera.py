@@ -6,6 +6,7 @@ import time
 import sys
 import cv2.cv as cv
 from datetime import datetime
+import subprocess
 
 APPLICATION_PATH = os.path.abspath(os.path.dirname(sys.argv[0]))
 PICTURE_PATH = os.path.join(APPLICATION_PATH, "www", "media", "snapshots")
@@ -13,7 +14,6 @@ PICTURE_PATH = os.path.join(APPLICATION_PATH, "www", "media", "snapshots")
 
 class CameraControl():
     def __init__(self):
-
         # Shows the detection video when set to True. Must run in graphics mode to work.
         self.showVideo = False
 
@@ -89,8 +89,15 @@ class CameraControl():
         cv.ShowImage("video", img)
         return face_found
 
+    def is_device_connected(self):
+        process = subprocess.Popen(["ls", "/dev/video0"], stdout=subprocess.PIPE)
+        out, err = process.communicate()
+        return 'video0' in out
+
     def use_camera(self):
         # global cascade, capture, frame_copy
+        if not self.is_device_connected():
+            return
 
         try:
 
@@ -102,6 +109,7 @@ class CameraControl():
                 self.cascade = cv.Load(os.path.join(APPLICATION_PATH, "face.xml"))
 
             self.capture = cv.CreateCameraCapture(0)
+
 
             if self.showVideo:
                 cv.NamedWindow("video", 1)
@@ -141,7 +149,8 @@ class CameraControl():
 
     def start_find_face(self):
         if not self.camera_is_on():
-            return
+            self.use_camera()
+            # return
 
         if not self.is_finding_faces:
             # self.set_resolution(160, 120)
@@ -158,18 +167,21 @@ class CameraControl():
 
     def flushCameraBuffer(self):
 
-        for i in range(10):
+        for i in range(6):
             cv.GrabFrame(self.capture)
             # if not cv.GrabFrame(self.capture):
             #     break;
 
-    def face_found(self):
+    def found_face(self):
         # global frame_copy
         if (not self.camera_is_on()) or (not self.find_face_is_on()):
             return False
 
-        frame = cv.QueryFrame(self.capture)
         self.flushCameraBuffer()  # this reduces the frame delay
+        frame = cv.QueryFrame(self.capture)
+        if frame is None:
+            self.close_camera()
+            return False
 
         if not frame:
             cv.WaitKey(0)
@@ -192,7 +204,7 @@ class CameraControl():
     def take_snapshot(self):
         # get image from webcam
         if not self.camera_is_on():
-            return None
+            self.use_camera()
 
         self.flushCameraBuffer()  # this reduces the frame delay
         frame = cv.QueryFrame(self.capture)
@@ -206,10 +218,13 @@ class CameraControl():
     def take_preview_image(self):
         # get image from webcam
         if not self.camera_is_on():
-            return
+            self.use_camera()
 
         self.flushCameraBuffer()  # this reduces the frame delay
         frame = cv.QueryFrame(self.capture)
+        if frame is None:
+            self.close_camera()
+            return
         self.create_folder_if_not_exist()
         cv.SaveImage(os.path.join(PICTURE_PATH, "current.jpg"), frame)  # this is the preview image
 
