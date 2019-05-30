@@ -13,6 +13,7 @@ import json
 # logging.basicConfig(
 #     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
 #     level=logging.CRITICAL)
+logging.basicConfig()
 
 APPLICATION_PATH    = os.path.abspath(os.path.dirname(sys.argv[0]))
 VARIABLE_FILE       = os.path.join(APPLICATION_PATH, "addons_variables.json")
