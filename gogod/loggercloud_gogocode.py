@@ -104,7 +104,7 @@ class CloudDataThread(threading.Thread):
                 'value': data_value
             }
             self.data_to_update[data_field] = data
-            self.publish(data)
+            # self.publish(data)
     
     def preparePubData(self, data_channel, data_field, data_value):
 
