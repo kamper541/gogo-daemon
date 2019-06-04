@@ -14,8 +14,10 @@ import wireless
 import rpi_system
 import loggerfile
 import loggercloud
+import loggercloud_gogocode
 import logging
 import mail
+import time
 from mail import EmailParam
 import const
 import sms
@@ -69,6 +71,7 @@ class GogoD():
         # init with log and media paths
         self.data_logger = loggerfile.dataLogger(os.path.join(MEDIA_PATH, "log"), MEDIA_PATH)
         self.cloud_logger = loggercloud.CloudDataThread(self.conf)
+        self.cloud_logger_gogocode = loggercloud_gogocode.CloudDataThread(self.conf)
 
         self.background_push = push.BackgroundCheck(self.sendKeyValueEvent)
         self.text2speech = text2speech.TextToSpeech()
@@ -398,12 +401,25 @@ class GogoD():
         elif cmd[1] == const.RPI_SEND_MESSAGE:
             arg = ''.join(chr(i) for i in cmd[2:]).split(',')
             topic = arg[0]
-            message = arg[1]
+            message = None
+
+            if len(arg) > 1:
+                message = arg[1]
 
             consolelog.log("Message", "%s" % (arg))
 
-            if not self.packet_limit_check.is_passed_custom(topic, 0.25):
-                return
+            # ======== Cloud record for GoGo Code ========
+            if message is not None:
+                if len(topic) > 5 and topic.startswith('@log/'):
+                    return self.cloud_logger_gogocode.processSetting(topic[5:], message)
+
+                if len(topic) > 4 and topic.startswith('log/'):
+                    return self.cloud_logger_gogocode.log(topic[4:], message)
+
+                if len(topic) > 5 and topic.startswith('plog/'):
+                    topics = topic[5:].split('/')
+                    if len(topics) == 2:
+                        return self.cloud_logger_gogocode.pub_log(topics[0], topics[1], message)
 
             if topic == "@ifttt":
                 self.ifttt.trigger(arg)
@@ -412,7 +428,6 @@ class GogoD():
                 self.telegram_bot.handle_gogo_message(message)
             else:
                 self.broadcast_to_interface(topic, message)
-
         
     def do_report(self):
         # =============================================
