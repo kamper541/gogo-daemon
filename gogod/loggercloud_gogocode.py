@@ -27,6 +27,8 @@ MQTT_PASSWORD   = 'password'
 MQTT_TOPIC      = 'log/+/+'  # [bme280|mijia]/[temperature|humidity|battery|status]
 MQTT_CLIENT_ID  = ''
 
+LAST_CONNECT    = 0
+
 def mqtt_on_connect(client, userdata, flags, rc):
     client.is_connected = True
     client.is_connecting = False
@@ -54,28 +56,34 @@ class CloudDataThread(threading.Thread):
         self.is_connected = False
         self.is_connecting = True
 
-        global _rate_limit_cloud
-        _rate_limit_cloud = _rate_limit_cloud - 0.05
-
         consolelog.log(LOG_TITLE, "Created Thread ")
         self.start()
 
     def run(self):
-        global _rate_limit_cloud
+        self.checkdo()
         while (True):
-            if len(self.data_to_update) > 0:
-                for key in self.data_to_update:
-                    if self.data_to_update[key]["is_public"]:
-                        self.pub_publish(self.data_to_update[key])
-                    else:
-                        self.publish(self.data_to_update[key])
+            time.sleep(1)
 
-                self.data_to_update = {}
+    def checkdo(self):
+        global _rate_limit_cloud
+        threading.Timer(_rate_limit_cloud, self.checkdo).start()
 
-            if self.mqtt_client is not None:
-                self.mqtt_client.loop(timeout=1.0, max_packets=1)
-            
-            time.sleep( _rate_limit_cloud )
+        if len(self.data_to_update) > 0:
+            for key in self.data_to_update:
+                if self.data_to_update[key]["is_public"]:
+                    self.pub_publish(self.data_to_update[key])
+                else:
+                    self.publish(self.data_to_update[key])
+
+            self.data_to_update = {}
+        
+        if self.mqtt_client is not None:
+
+            global LAST_CONNECT
+            if not self.mqtt_client.is_connected and self.mqtt_client.is_connecting and (time.time() - LAST_CONNECT) > (5 * 60):
+                self.init_mqtt_client()
+
+            self.mqtt_client.loop(timeout=1.0, max_packets=1)
 
     def processSetting(self, topic, value):
         if topic == 'setting/uid':
@@ -151,6 +159,8 @@ class CloudDataThread(threading.Thread):
         if self.mqtt_client.is_connected:
             consolelog.log(LOG_TITLE, data)
             self.mqtt_client.publish("log/%s/%s" % (data["user"], data["field"]), "%s %s=%s" % (data["user"], data["field"], data["value"]))
+            global LAST_CONNECT
+            LAST_CONNECT = time.time()
 
     def pub_publish(self, data):
 
@@ -167,7 +177,8 @@ class CloudDataThread(threading.Thread):
         if self.mqtt_client.is_connected:
             consolelog.log(LOG_TITLE, data)
             self.mqtt_client.publish("plog/%s/%s" % (data["channel"], data["field"]), "%s %s=%s" % (data["channel"], data["field"], data["value"]))
-
+            global LAST_CONNECT
+            LAST_CONNECT = time.time()
 
     def init_mqtt_client(self):
         MQTT_USER = self.uid
@@ -188,13 +199,20 @@ class CloudDataThread(threading.Thread):
         self.mqtt_client.is_connected = False
         self.mqtt_client.is_connecting = True
         self.mqtt_client.username = MQTT_USER
+        
+        global LAST_CONNECT
+        LAST_CONNECT = time.time()
 
         # mqtt_client.on_message = on_message
         consolelog.log(LOG_TITLE, "MQTT connecting")
 
-        self.mqtt_client.connect(MQTT_ADDRESS, port=1883, keepalive=10)
-        time.sleep(1)
-        # mqtt_client.loop_start()
+        try:
+            self.mqtt_client.connect(MQTT_ADDRESS, port=1883, keepalive=10)
+        except Exception as e: 
+            print(e)
+            consolelog.log(LOG_TITLE, "MQTT connect error")
+        time.sleep(0.1)
+        # self.mqtt_client.loop_start()
 
     def random_string(self, stringLength=4):
         """Generate a random string of fixed length """
