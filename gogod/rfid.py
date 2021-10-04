@@ -52,7 +52,7 @@ class RFID_Reader():
 
     def debug(self, message):
         if self.debugOn :
-            print message
+            print(message)
 
 
     # read one byte and add to the receive checksum
@@ -717,7 +717,7 @@ class RFIDHandle(threading.Thread):
                     self.rf.write_String(self.writeString)
                     self.writeFlag = False
                     self.writeFlag = None
-                    print "RFID : writed " + self.writeString
+                    print("RFID : writed " + self.writeString)
                 self.rfid_string = self.rf.read_String()
             except Exception as e:
                 self.rfid_string = None
@@ -728,11 +728,11 @@ class RFIDHandle(threading.Thread):
 
             if self.rfid_string is not None:
                 #self.rf.beep()
-                print "RFID : Tag Found. String = %s" % self.rfid_string
+                print("RFID : Tag Found. String = %s" % self.rfid_string)
                 try:
                     self.read_tag_callback(int(self.rfid_string))
                 except ValueError:
-                    print "RFID : not integer"
+                    print("RFID : not integer")
 
 
                 self.readerStatus = RFIDStatus.CONNECTED
@@ -742,7 +742,7 @@ class RFIDHandle(threading.Thread):
                 # print "RFID : RFID Tag not found"
             self.updateStatusCallback()
             time.sleep(0.5)
-        print "RFID : closed"
+        print("RFID : closed")
 
     def join(self, timeout=None):
         """
@@ -785,16 +785,16 @@ class RFIDHandle(threading.Thread):
 
 
 def useRFID(status_callback, read_tag_callback):
-    print "RFID : using RFID"
+    print("RFID : using RFID")
     global rfid_thread
     if rfid_thread is None:
         rfid_thread = RFIDHandle(status_callback, read_tag_callback)
         rfid_thread.start()
     else:
-        print "RFID : Already used RFID"
+        print("RFID : Already used RFID")
 
 def closeRFID():
-    print "RFID : closing"
+    print("RFID : closing")
     global rfid_thread
     if rfid_thread is not None:
         rfid_thread.join()
@@ -803,19 +803,19 @@ def closeRFID():
         rfid_thread = None
 
 def updateStatus():
-    print "RFID : Status"
+    print("RFID : Status")
     global rfid_thread
     if rfid_thread is not None:
         rfid_thread.updateStatusCallback()
 
 def beep():
-    print "RFID : beep"
+    print("RFID : beep")
     global rfid_thread
     if rfid_thread is not None:
         rfid_thread.beep()
 
 def write(byte):
-    print "RFID : write"
+    print("RFID : write")
     global rfid_thread
     if rfid_thread is not None:
         if len(str(byte)) == 1:

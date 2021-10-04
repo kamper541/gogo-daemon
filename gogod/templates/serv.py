@@ -10,7 +10,7 @@ class WSHandler(tornado.websocket.WebSocketHandler):
         self.COM_Port = 5
         self.CurrentCommand = 0
 
-        print 'new connection'
+        print('new connection')
             # self.write_message("""
             #                    You are connected to the WebSocket Server.
             #                    Type the following commands:
@@ -21,7 +21,7 @@ class WSHandler(tornado.websocket.WebSocketHandler):
             #                    """)
 
     def on_message(self, message):
-        print 'message received %s' % message
+        print('message received %s' % message)
 
         if "pet_idle.png" in message:
             #self.write_message("pet_smile.png")
@@ -43,7 +43,7 @@ class WSHandler(tornado.websocket.WebSocketHandler):
         #     self.CurrentCommand = 0
 
     def on_close(self):
-        print 'connection closed'
+        print('connection closed')
 
 
 application = tornado.web.Application([

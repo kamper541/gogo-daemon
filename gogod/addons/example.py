@@ -4,7 +4,7 @@ import time
 
 
 def on_message(title, message):
-    print "\t %s = %s" % (title, message)
+    print("\t %s = %s" % (title, message))
     # Do something when received the message.
 
 def main():
@@ -14,7 +14,7 @@ def main():
 
     while True:
         time.sleep(5)
-        print "sending topic=count  message=%s" % count
+        print("sending topic=count  message=%s" % count)
 
         # An example to sending a topic/message to GoGo Board
         app.send("count", count)

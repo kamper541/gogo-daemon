@@ -48,8 +48,8 @@ class connectWifi(threading.Thread):
         self.status = 1 # 1=connecting
         self.status_callback(self.status)
 
-        print "Wifi \t\t: connect thread started"
-        print "Wifi \t\t: Connecting to SSID %s with password %s" % (self.SSID, self.PASSWORD)
+        print("Wifi \t\t: connect thread started")
+        print("Wifi \t\t: Connecting to SSID %s with password %s" % (self.SSID, self.PASSWORD))
 
         try:
             os.system("ifup wlan0")
@@ -58,7 +58,7 @@ class connectWifi(threading.Thread):
 
         #Checking spacebar
         if ' ' in self.SSID or (self.PASSWORD is not None and ' ' in self.PASSWORD):
-            print "Wifi \t\t: invalid config."
+            print("Wifi \t\t: invalid config.")
             self.status=3 # 3=authentication error
             self.status_callback(self.status)
             _flag_run = False
@@ -82,14 +82,14 @@ class connectWifi(threading.Thread):
         for cell in cells:
             if cell.ssid == self.SSID:
                 ssid_found = True
-                print "Wifi \t\t: SSID %s is found" % self.SSID
+                print("Wifi \t\t: SSID %s is found" % self.SSID)
                 break
 
         if ssid_found:
 
             s = wifi.Scheme.find(_wlan_name, self.SSID)
             if s is not None:
-                print "Wifi \t\t: Deleting old wifi config"
+                print("Wifi \t\t: Deleting old wifi config")
                 s.delete()
 
             try:
@@ -106,7 +106,7 @@ class connectWifi(threading.Thread):
             scheme.save()
             self.conf.save_wifi_config(self.SSID, self.PASSWORD)
 
-            print "Wifi \t\t: Now connecting"
+            print("Wifi \t\t: Now connecting")
 
             try:
                 scheme.activate()
@@ -117,12 +117,12 @@ class connectWifi(threading.Thread):
                 self.status=3 # 3=authentication error
                 self.status_callback(self.status)
 
-            print "Wifi \t\t: Done connecting"
+            print("Wifi \t\t: Done connecting")
 
             _flag_run = False
 
         else:
-            print "Wifi \t\t: SSID %s not found" % self.SSID
+            print("Wifi \t\t: SSID %s not found" % self.SSID)
             self.status =4 # 4=ssid not found
             self.status_callback(self.status)
 
@@ -147,14 +147,14 @@ class disconnectWifi(threading.Thread):
 def connect(status_callback, SSID, PASSWORD=None):
     global _flag_disconnected
     _flag_disconnected = False
-    print "Wifi \t\t: Starting connect thread"
+    print("Wifi \t\t: Starting connect thread")
     wifi_thread = connectWifi(status_callback, SSID, PASSWORD)
     wifi_thread.start()
 
 def disconnect(status_callback):
     global _flag_disconnected
     _flag_disconnected = True
-    print "Wifi \t\t: Disconnecting to the wireless network"
+    print("Wifi \t\t: Disconnecting to the wireless network")
     disconnect_thread = disconnectWifi(status_callback)
     disconnect_thread.start()
 
@@ -164,7 +164,7 @@ def autoconnect(status_callback=None):
     if not conf.get_autoconnect_wifi() :
         return
 
-    print "auto wifi"
+    print("auto wifi")
     global _flag_run
     global _status_callback
     global _flag_disconnected
@@ -181,8 +181,8 @@ def autoconnect(status_callback=None):
 
 if __name__ == '__main__':
 
-    print "Attempting to Connect to wifi"
+    print("Attempting to Connect to wifi")
     wifi_thread = connectWifi('Annie', 'chiangmai')
 
     wifi_thread.start()
-    print "Exiting main thread"
+    print("Exiting main thread")

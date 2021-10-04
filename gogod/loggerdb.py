@@ -60,7 +60,7 @@ class databaseThread(threading.Thread):
             #queue_thread.start()
             #_clouddata_thread.start()
 
-            print "Database \t: new object"
+            print("Database \t: new object")
         _db_handle.log(self.value, self.classname)
 
 
@@ -84,9 +84,9 @@ class DatabaseHandle:
                 self.client.command( "CREATE PROPERTY "+classname+".datetime STRING" )
                 self.client.command( "CREATE INDEX "+classname+".datetime NOTUNIQUE" )
                 self.list_exist_class[classname] = True
-                print "Database \t: Created class %s" % (classname)
+                print("Database \t: Created class %s" % (classname))
         except:
-            print 'Database \t: Unknown Error.'
+            print('Database \t: Unknown Error.')
             pass
 
     def exist_class(self, classname):
@@ -99,21 +99,21 @@ class DatabaseHandle:
             result = self.client.query(command)[0]
             if result.COUNT>0:
                 self.list_exist_class[classname] = True
-                print "Database \t: found class %s" % (classname)
+                print("Database \t: found class %s" % (classname))
                 exist = True
             else:
                 # self.client.command( "create class "+classname )
-                print "Database \t: Not found class %s" % (classname)
+                print("Database \t: Not found class %s" % (classname))
                 exist = False
 
         except:
-            print 'Database \t: Unknown Error.'
+            print('Database \t: Unknown Error.')
             pass
         return exist
 
     def sql(self, command):
         self.client.command(command)
-        print 'Database \t: saved record.'
+        print('Database \t: saved record.')
 
     def new_name(self, classname):
         self.init_database(classname)
@@ -123,13 +123,13 @@ class DatabaseHandle:
         command = "insert into %s ( 'datetime', 'value' ) values( '%s', %d )" % (classname, getDatetime(), log_value)
         self.client.command(command)
         self.client.db_close()
-        print 'Database \t: saved record.'
+        print('Database \t: saved record.')
 
     def truncate(self, classname):
         self.init_db()
         command = "truncate class %s" % (classname)
         result = self.client.command(command)
-        print 'Database \t: Clear class %s  success.' % (classname)
+        print('Database \t: Clear class %s  success.' % (classname))
         return result
 
     def drop(self, classnames):
@@ -138,21 +138,21 @@ class DatabaseHandle:
 
         for classname in list:
             command = "drop class " + str(classname)
-            print command
+            print(command)
             result = True
             result = self.client.command(command)
             if result:
                 if classname in self.list_exist_class: del self.list_exist_class[classname]
-                print 'Database \t: Drop class %s  success.' % (classname)
+                print('Database \t: Drop class %s  success.' % (classname))
             else:
-                print 'Database \t: Drop class %s  fail.' % (classname)
+                print('Database \t: Drop class %s  fail.' % (classname))
                 return False
         return True
 
     def log_from_queue(self, obj):
 
         if not ( ('name' in obj) and ('value' in obj) and ('datetime' in obj) ):
-            print "Database \t: Missing the arguments"
+            print("Database \t: Missing the arguments")
             return False
 
         log_name = obj['name']
@@ -162,15 +162,15 @@ class DatabaseHandle:
         self.init_class(log_name)
         command = "insert into %s ( 'datetime', 'value' ) values( '%s', %s )" % (log_name, log_datetime, log_value)
         self.client.command(command)
-        print 'Database \t: saved %s => %s' %(log_name,log_value)
+        print('Database \t: saved %s => %s' %(log_name,log_value))
 
     def show(self, classname):
         result = self.client.query( ("SELECT FROM %s") % (classname))
 
         for doc in result:
-            print "---------------------"
-            print doc['value']
-            print doc['datetime']
+            print("---------------------")
+            print(doc['value'])
+            print(doc['datetime'])
 
     def fetch_json(self, classname):
         list = []
@@ -188,7 +188,7 @@ def initDBThread():
     global _db_handle
     global _clouddata_thread
     if _db_handle==None:
-        print "Datalog \t: starting log thread"
+        print("Datalog \t: starting log thread")
         _db_handle = DatabaseHandle()
         queue_thread = queueDatabaseThread()
         _clouddata_thread = loggercloud.CloudDataThread()

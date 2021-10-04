@@ -31,7 +31,7 @@ class GogodInterfacce(threading.Thread):
         self._stop.set()
 
     def run(self):
-        print "Gogod Interfacce \t: starting"
+        print("Gogod Interfacce \t: starting")
         self.connect()
 
     def connect(self):
@@ -49,22 +49,22 @@ class GogodInterfacce(threading.Thread):
             try:
                 self.ws.send("%s,%s" % (key, value))
             except:
-                print "Gogod Interface \t: send message error"
+                print("Gogod Interface \t: send message error")
 
     def on_message(self, ws, message):
-        print "Gogod Interface \t: msg -> %s" % message
+        print("Gogod Interface \t: msg -> %s" % message)
         try:
             message = message.split(',')
             self.on_inter_message(message[0], message[1])
         except:
-            print "Gogod Interface \t: msg error"
+            print("Gogod Interface \t: msg error")
 
     def on_error(self, ws, error):
-        print "Gogod Interface \t: Error"
+        print("Gogod Interface \t: Error")
         # print error
 
     def on_close(self, ws):
-        print "Gogod Interface \t: Closed"
+        print("Gogod Interface \t: Closed")
         self.ws = None
 
     # def on_open(self, ws):
@@ -73,10 +73,10 @@ class GogodInterfacce(threading.Thread):
 
     def on_open(self, ws):
         def run(*args):
-            print "Gogod Interface \t: starting..."
+            print("Gogod Interface \t: starting...")
             self.addons_handler()
             ws.close()
-            print "Gogod Interface \t: terminating..."
+            print("Gogod Interface \t: terminating...")
         thread.start_new_thread(run, ())
 
     def save_variable(self, name=None, value=None):
@@ -94,7 +94,7 @@ class GogodInterfacce(threading.Thread):
         jsonFile = open(VARIABLE_FILE, "w+")
         jsonFile.write(json.dumps(data))
         jsonFile.close()
-        print "Gogod Interface \t: Saved"
+        print("Gogod Interface \t: Saved")
 
     def get_variable(self, name=''):
         data = {}
@@ -112,14 +112,14 @@ class GogodInterfacce(threading.Thread):
 
 if __name__ == "__main__":
     def on_message(title, message):
-        print "%s = %s" % (title, message)
+        print("%s = %s" % (title, message))
 
 
     def main():
         count = 1
         while True:
             time.sleep(5)
-            print count
+            print(count)
             app.send('count', count)
             count += 1
 

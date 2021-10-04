@@ -52,7 +52,7 @@ pip3 install websocket-client
 pip3 install pycrypto
 pip3 install requests
 pip3 install EasyProcess
-pip3 install python3-telegram-bot --upgrade
+pip3 install python-telegram-bot --upgrade
 pip3 install telepot --upgrade
 pip3 install paho-mqtt
 

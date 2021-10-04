@@ -106,20 +106,20 @@ def read_all_sms():
 
     smsCount = status['SIMUsed']
 
-    print "SMS count = " + str(smsCount)
+    print("SMS count = " + str(smsCount))
 
     for i in range(0,smsCount):
          if i==0:
             sms = sm.GetNextSMS(Folder=0, Start=True)
          else:
             sms = sm.GetNextSMS(Folder=0, Location=i-1)
-         print sms[0]['Number']     # Sender's phone number
-         print sms[0]['DateTime']   # Receive date and time
-         print sms[0]['State']      # message state (unread/read)
-         print sms[0]['Text']       # SMS content
-         print "=================================="
+         print(sms[0]['Number'])     # Sender's phone number
+         print (sms[0]['DateTime'])   # Receive date and time
+         print (sms[0]['State'])      # message state (unread/read)
+         print (sms[0]['Text'])       # SMS content
+         print ("==================================")
 
-    print "Done"
+    print("Done")
 
 
 def send(status_callback, sms_number, sms_message):

@@ -98,7 +98,7 @@ class TelegramBot():
 
     def on_gogo_message(self, title, message):
         if title == "telegram":
-            print "%s = %s" %(title, message)
+            print("%s = %s" %(title, message))
             self.send_telegram_message( "%s" % (message) )
 
     def save_sender(self, sender_id):

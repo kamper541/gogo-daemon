@@ -38,7 +38,7 @@ class dataLogger():
         full_name = os.path.join(self.log_path, name)
         full_name = "%s.csv" % (full_name)
         if not os.path.isfile(full_name):
-            print "Data Log\t not found %s" % full_name
+            print("Data Log\t not found %s" % full_name)
             return None
         else:
             raw = open(full_name, "rb").read()
@@ -104,11 +104,11 @@ class dataLogger():
             full_name = os.path.join(self.log_path, file_name)
             full_name = "%s.csv" % (full_name)
             if "/" in file_name or not os.path.isfile(full_name):
-                print "Data Log\t %s is invalid" % file_name
+                print("Data Log\t %s is invalid" % file_name)
             else:
                 os.remove(full_name)
                 result = True
-                print "Data Log\t %s deleted %s" % (file_name, result)
+                print("Data Log\t %s deleted %s" % (file_name, result))
         return result
 
     def log(self, log_value, file_name):
@@ -132,7 +132,7 @@ class dataLogger():
     def plot(self, n, file_list):
         ''' n = the number of latest data points to display '''
 
-        print "plot"
+        print("plot")
         '''
         for file_name in file_list.split(","):
             print "plotting %s" % file_name
@@ -190,5 +190,5 @@ class dataLogger():
 
 if __name__ == '__main__':
     dl = dataLogger("/home/pi/gogod/www/media/log", "/home/pi/gogod/www/media")
-    print dl.delete_files('../field1_.csv,  field1_1.csv')
+    print(dl.delete_files('../field1_.csv,  field1_1.csv'))
     #dl.plot(0, "switch,light")

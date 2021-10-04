@@ -33,7 +33,7 @@ class Addons (threading.Thread):
         if os.path.isdir(dir):
             sys.path.append(dir)
         else:
-            print '%s is not a directory!' % (dir)
+            print('%s is not a directory!' % (dir))
         lib_list = self.import_libs(dir)
         
         for l in lib_list:

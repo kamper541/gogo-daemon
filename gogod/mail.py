@@ -57,7 +57,7 @@ class EmailHandle(threading.Thread):
         isSending = True
         self.status = EmailStatus.CONNECTING
         self.status_callback(self.status)
-        print "Email : thread started"
+        print("Email : thread started")
 
         #Get decrypted account infomation form text file
         self.get_account()
@@ -68,7 +68,7 @@ class EmailHandle(threading.Thread):
         body_of_email = self.param.body
         # The below code never changes, though obviously those variables need values.
         try:
-            print "Email : Connecting to Gmail"
+            print("Email : Connecting to Gmail")
             self.status = EmailStatus.ERROR_CONNECTION
             session = smtplib.SMTP('smtp.gmail.com', 587)
             session.ehlo()
@@ -86,11 +86,11 @@ class EmailHandle(threading.Thread):
             # body_of_email can be plaintext or html!
             content = headers + "\r\n\r\n" + body_of_email
             session.sendmail(GMAIL_USERNAME, recipient, content)
-            print "Email : email has sent"
+            print("Email : email has sent")
             self.status = EmailStatus.SUCCESS
             self.status_callback(self.status)
         except:
-            print "Email : error"
+            print("Email : error")
             self.status_callback(self.status)
         isSending = False
 
@@ -99,7 +99,7 @@ class EmailHandle(threading.Thread):
 
 
 def save_config(status_callback, param):
-    print "Email : Saving email config"
+    print("Email : Saving email config")
     conf = config.Config(status_callback)
     conf.EmailStatus = EmailStatus
     conf.save_account(param.username,param.password)
@@ -108,10 +108,10 @@ def save_config(status_callback, param):
 def send(status_callback, param):
 
     if isSending:
-        print "Email : conflict sending "
+        print("Email : conflict sending ")
         status_callback(EmailStatus.ERROR_CONFLICT)
     else:
-        print "Email : starting connect thread"
+        print("Email : starting connect thread")
         email_thread = EmailHandle(status_callback, param)
         email_thread.start()
 
@@ -121,4 +121,4 @@ if __name__ == '__main__':
         arguments = sys.argv
         encrypted = enc.save_config(arguments[1], arguments[2])
     else:
-        print 'false'
+        print('false')
