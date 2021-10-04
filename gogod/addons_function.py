@@ -199,4 +199,4 @@ class AddOnsManager():
 
 if __name__ == '__main__':
     addons = AddOnsManager()
-    print addons.list_files()
+    print(addons.list_files())

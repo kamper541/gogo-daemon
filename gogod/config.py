@@ -308,7 +308,7 @@ class Config():
 
     def auto_filepath_image(self, filename):
         filename = self.auto_filename_image(filename)
-        print filename
+        print(filename)
         return os.path.join(MEDIA_PATH, filename)
 
     def auto_filename_sound(self, filename):
@@ -378,4 +378,4 @@ class Encryption:
 if __name__ == "__main__":
     con = Config()
     #print con.set_addons_enable_active('telegrambot.py')
-    print con.get_addons()
+    print(con.get_addons())

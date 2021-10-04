@@ -213,7 +213,7 @@ class GogoD():
         #     return
 
         if not self.packet_limit_check.is_passed_limit(cmd[1]) and cmd[1] in [const.TAKE_SNAP_SHOT, const.TAKE_PREVIEW_IMAGE, const.SEND_MAIL, const.PLAY_SOUND, const.SHOW_IMAGE, const.EMAIL_SEND, const.SEND_SMS]:
-            print 'time limit'
+            print('time limit')
             # continue
             return
 

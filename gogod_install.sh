@@ -34,10 +34,10 @@ apt-get -qq install python-dev -y
 apt-get -qq install python-rpi.gpio -y
 apt-get -qq install python-pycurl -y
 #install pip
-curl https://bootstrap.pypa.io/get-pip.py | python
+curl https://bootstrap.pypa.io/get-pip.py | python3
 apt-get -qq install vlc -y
-apt-get -qq install php5-gd -y
-apt-get -qq install php5 -y
+apt-get -qq install php-gd -y
+apt-get -qq install php -y
 apt-get -qq install gammu -y
 apt-get -qq install usb-modeswitch -y
 apt-get -qq install python-gammu -y
@@ -45,16 +45,16 @@ apt-get -qq install python-gammu -y
 apt-get install python-opencv -y
 
 echo " [step 3 of 4] installing python modules..."
-pip install pyserial
-pip install tornado
-pip install wifi
-pip install websocket-client
-pip install pycrypto
-pip install requests
-pip install EasyProcess
-pip install python-telegram-bot --upgrade
-pip install telepot --upgrade
-pip install paho-mqtt
+pip3 install pyserial
+pip3 install tornado
+pip3 install wifi
+pip3 install websocket-client
+pip3 install pycrypto
+pip3 install requests
+pip3 install EasyProcess
+pip3 install python-telegram-bot --upgrade
+pip3 install telepot --upgrade
+pip3 install paho-mqtt
 
 echo " [step 3 of 4] configurating serial port..."
 
@@ -86,7 +86,7 @@ Restart=on-abort
 
 [Install]
 WantedBy=multi-user.target"
-gogod_url="https://github.com/lilcmu/gogo-daemon/archive/master.tar.gz"
+gogod_url="https://github.com/kamper541/gogo-daemon/archive/master.tar.gz"
 temp_path="/tmp/gogod_install"
 gogod_path="/opt/gogod"
 is_install=true

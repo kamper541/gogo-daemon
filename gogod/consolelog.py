@@ -19,10 +19,10 @@ class ConsoleLog(threading.Thread):
         # self.start()
 
     def run(self):
-        print None
+        print(None)
 
 def log(title=None, text=None):
-    print "%s, %10s : %s" % (getDateTime(), title, text)
+    prin("%s, %10s : %s" % (getDateTime(), title, text))
 
 
 def getDateTime():

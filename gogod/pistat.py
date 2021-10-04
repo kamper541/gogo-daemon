@@ -2,7 +2,7 @@
 # Modified by Arnan (Roger) Sipitakiat
 
 import re, time, sys
-import commands
+# import commands
 
 class PiStats(object):
   def __init__(self):
@@ -78,10 +78,10 @@ if __name__ == '__main__':
     stats.update_stats()
     meminfo = stats.get_memory_info()
 
-    print "total\tused\tfree\tcached"
-    print "%i\t%i\t%i\t%i"%(meminfo['total'],meminfo['used'],meminfo['free'],meminfo['cached'])
-    print "Memory Usage:\t%i%%"%(meminfo['percent'])
-    print "\n"
+    print("total\tused\tfree\tcached")
+    print("%i\t%i\t%i\t%i"%(meminfo['total'],meminfo['used'],meminfo['free'],meminfo['cached']))
+    print("Memory Usage:\t%i%%"%(meminfo['percent']))
+    print("\n")
 
     try:
       while True:
@@ -89,11 +89,11 @@ if __name__ == '__main__':
         cpu_info = stats.get_cpu_info()
         meminfo = stats.get_memory_info()
 
-        print "CPU Load:\t%i%%"%(cpu_info['percent'])
-        print "Memory used:\t%i%%"%(meminfo['percent'])
-        print "CPU Temperature:\t%i C"%(stats.temp_in_celsius)
+        print("CPU Load:\t%i%%"%(cpu_info['percent']))
+        print("Memory used:\t%i%%"%(meminfo['percent']))
+        print("CPU Temperature:\t%i C"%(stats.temp_in_celsius))
         time.sleep(2);
 
     except KeyboardInterrupt:
-      print "Exiting.\n"
+      print("Exiting.\n")
       sys.exit(0)

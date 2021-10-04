@@ -24,5 +24,5 @@ def get_ip_list(ifname):
     return ipList
 
 if __name__ == '__main__':
-    print get_ip_address('eth0')
+    print(get_ip_address('eth0'))
 
