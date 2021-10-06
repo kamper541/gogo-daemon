@@ -23,7 +23,7 @@ import const
 import sms
 import rfid
 import text2speech
-import urllib2
+# import urllib2
 import urllib, mimetypes
 import push
 import config
@@ -109,7 +109,7 @@ class GogoD():
             print "==================================================="
             print outputBuffer'''
         outputString = ''.join(chr(c) for c in outputBuffer)
-        self.ser.write(outputString)
+        self.ser.write(outputString.encode())
 
     def send_on_keyvalue_buffer(self, packet_type, data):
         pre_output_buffer = [packet_type, len(data) + 3] + data + [0]

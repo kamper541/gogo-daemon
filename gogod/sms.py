@@ -1,4 +1,4 @@
-import commands
+import subprocess
 import threading
 import gammu
 import os

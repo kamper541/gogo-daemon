@@ -15,12 +15,12 @@
 import pyorient
 import datetime
 import threading
-import Queue
+import queue
 import time
 import loggercloud
 
 # Declare the global variables
-_queue_records = Queue.Queue()
+_queue_records = Queue()
 _db_handle = None
 _last_handle = {'field1':0}
 _rate_limit = 0.5 #seconds
@@ -32,7 +32,7 @@ class queueDatabaseThread(threading.Thread):
         self.keeprunning = True
 
     def run(self):
-        print "Datalog \t: Queue Thread is running"
+        print("Datalog \t: Queue Thread is running")
         global _queue_records
         global _db_handle
         while True:

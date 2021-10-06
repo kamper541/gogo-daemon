@@ -11,11 +11,11 @@
 #-------------------------------------------------------------------------------
 
 import websocket
-import thread
+import _thread
 import threading
 import time
 import json
-import urllib2, base64
+import urllib, base64
 import os
 import config
 import consolelog

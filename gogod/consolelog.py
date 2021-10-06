@@ -22,7 +22,7 @@ class ConsoleLog(threading.Thread):
         print(None)
 
 def log(title=None, text=None):
-    prin("%s, %10s : %s" % (getDateTime(), title, text))
+    print("%s, %10s : %s" % (getDateTime(), title, text))
 
 
 def getDateTime():
