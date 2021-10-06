@@ -102,7 +102,7 @@ class Config():
             data = json.load(jsonFile)
             jsonFile.close()
 
-            for key, value in params.iteritems():
+            for key, value in params.items():
 
                 if not self.is_valid_config_name(key):
                     continue

@@ -4,7 +4,7 @@
 import os
 import time
 import sys
-import cv2.cv2 as cv
+import cv2 as cv
 from datetime import datetime
 import subprocess
 

@@ -21,6 +21,7 @@ from io import StringIO
 import copy
 import urllib
 from urllib.request import urlopen
+from urllib.request import Request
 import consolelog
 
 _rate_limit_cloud = 1 #seconds
@@ -38,7 +39,7 @@ class CloudDataThread(threading.Thread):
         self.last_handle = 0
         self.count = 0
         self.state_normal = False # False = queue, True = normal
-        self.queue_not_upload = Queue()
+        self.queue_not_upload = queue.Queue()
         self.flag_connect = False
 
         self.conf = config.Config() if gogod_config is None else gogod_config
@@ -139,7 +140,7 @@ class CloudDataThread(threading.Thread):
         data['key'] = self.api_key
 
         params = urllib.urlencode(dictData)
-        request = urlopen("https://data.learninginventions.org/update?key=%s&%s" % (self.api_key, params) )
+        request = Request("https://data.learninginventions.org/update?key=%s&%s" % (self.api_key, params) )
         try:
             # r = requests.post("https://data.learninginventions.org/update", data=data, ,verify=False)
             # return_data = r.text
